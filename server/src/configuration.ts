@@ -18,7 +18,6 @@ import * as LocalConfig from './config/config.local';
 import * as ProdConfig from './config/config.prod';
 import * as cool from '@cool-midway/core';
 import * as upload from '@midwayjs/upload';
-// import * as task from '@cool-midway/task';
 // import * as rpc from '@cool-midway/rpc';
 
 @Configuration({
@@ -41,8 +40,6 @@ import * as upload from '@midwayjs/upload';
     cool,
     // rpc 微服务 远程调用
     // rpc,
-    // 任务与队列
-    // task,
     {
       component: info,
       enabledEnvironment: ['local', 'prod'],

@@ -12,10 +12,6 @@ export default (): ModuleConfig => {
 		updateTime: '2024-03-25',
 		demo: [
 			{
-				name: '左右侧布局',
-				component: () => import('./demo/group.vue')
-			},
-			{
 				name: '顶部详情',
 				component: () => import('./demo/head.vue')
 			}

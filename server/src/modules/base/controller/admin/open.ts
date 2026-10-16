@@ -10,7 +10,6 @@ import {
 } from '@cool-midway/core';
 import { LoginDTO } from '../../dto/login';
 import { BaseSysLoginService } from '../../service/sys/login';
-import { BaseSysParamService } from '../../service/sys/param';
 import { Context } from '@midwayjs/koa';
 import { Validate } from '@midwayjs/validate';
 
@@ -23,9 +22,6 @@ import { Validate } from '@midwayjs/validate';
 export class BaseOpenController extends BaseController {
   @Inject()
   baseSysLoginService: BaseSysLoginService;
-
-  @Inject()
-  baseSysParamService: BaseSysParamService;
 
   @Inject()
   ctx: Context;
@@ -41,15 +37,6 @@ export class BaseOpenController extends BaseController {
   @Get('/eps', { summary: '实体信息与路径' })
   public async getEps() {
     return this.ok(this.eps.admin);
-  }
-
-  /**
-   * 根据配置参数key获得网页内容(富文本)
-   */
-  @CoolTag(TagTypes.IGNORE_TOKEN)
-  @Get('/html', { summary: '获得网页内容的参数值' })
-  async htmlByKey(@Query('key') key: string) {
-    this.ctx.body = await this.baseSysParamService.htmlByKey(key);
   }
 
   /**

@@ -13,6 +13,16 @@ import {
 } from 'vue';
 import { deepTree, parsePx } from '/@/cool/utils';
 import { useI18n } from 'vue-i18n';
+
+/**
+ * 选项，children 为下级选项
+ */
+interface OptionItem {
+	label: string;
+	value: any;
+	children?: OptionItem[];
+	[key: string]: any;
+}
 import { useCool } from '/@/cool';
 import { CrudProps } from '../../comm';
 
@@ -81,7 +91,7 @@ export default defineComponent({
 		const isSearch = computed(() => !Form.value || Form.value?.name === 'search');
 
 		// 选项
-		const options = ref<Dict.Item[]>();
+		const options = ref<OptionItem[]>();
 
 		// 选中值
 		const value = useModel(props, 'modelValue');
@@ -135,7 +145,7 @@ export default defineComponent({
 				const ids: any[] = [];
 
 				// 获取所有的值
-				const deep = (arr: Dict.Item[], f: boolean) => {
+				const deep = (arr: OptionItem[], f: boolean) => {
 					arr.forEach(e => {
 						const f2 = e[props.valueKey] == val;
 

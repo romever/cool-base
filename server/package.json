@@ -6,7 +6,6 @@
   "dependencies": {
     "@cool-midway/core": "^8.0.7",
     "@cool-midway/rpc": "^8.0.2",
-    "@cool-midway/task": "^8.0.2",
     "@midwayjs/bootstrap": "^3.20.3",
     "@midwayjs/cache-manager": "^3.20.3",
     "@midwayjs/core": "^3.20.3",
@@ -21,7 +20,6 @@
     "@midwayjs/validate": "^3.20.3",
     "adm-zip": "^0.5.16",
     "axios": "^1.8.4",
-    "cron": "^4.1.3",
     "download": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",

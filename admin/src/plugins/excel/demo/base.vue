@@ -29,10 +29,15 @@
 
 <script lang="tsx" setup>
 import { useCrud, useTable } from '@cool-vue/crud';
-import { useDict } from '/$/dict';
 import { ElMessage } from 'element-plus';
 
-const { dict } = useDict();
+// 工作选项
+const occupation = [
+	{ label: '研发', value: 1 },
+	{ label: '产品', value: 2 },
+	{ label: '设计', value: 3 },
+	{ label: '运营', value: 4 }
+];
 
 // crud
 const Crud = useCrud(
@@ -66,7 +71,7 @@ const Table = useTable({
 		{
 			label: '工作',
 			prop: 'occupation',
-			dict: dict.get('occupation')
+			dict: occupation
 		}
 	]
 });

@@ -36,7 +36,7 @@ server/
 - 不要在 Controller 里重写 `add`、`delete`、`update`、`info`、`list`、`page`。需要改这些行为时，在 Service 里重写同名方法，或使用 `modifyBefore` / `modifyAfter`。
 - 分页、列表的筛选和关联查询，优先用 `pageQueryOp` / `listQueryOp` 配置，不写自定义 SQL。
 - 接口路径不要多级，用驼峰：`/studentDetail`，而不是 `/student/detail`。
-- `controller/admin` 放后台接口，`controller/app` 放 App/小程序接口，`controller/open` 或带 `/open/` 路径的放免登录接口（见 `docs/server/authority.md`）。
+- 本框架只提供管理后台接口：`controller/admin` 放后台接口，`controller/open` 只放少量免登录接口（如第三方回调）。不要写 `controller/app` 这类面向 C 端用户的接口，C 端服务独立实现，对接方式见 `docs/server/integration.md`。
 
 **Service**
 - 业务逻辑写在 Service，Controller 只做参数接收和转发。
@@ -52,12 +52,13 @@ server/
 | --- | --- |
 | 新建模块：目录结构、`config.ts`、`db.json`、`menu.json` | `../docs/server/module.md` |
 | Controller：路由规则、CRUD 配置、关联查询、`serviceApis`、路由标签 | `../docs/server/controller.md` |
-| Entity：字段写法、字典、虚拟列、数据库配置、事务 | `../docs/server/entity.md` |
+| Entity：字段写法、可选项、虚拟列、数据库配置、事务 | `../docs/server/entity.md` |
 | Service：重写 CRUD、TypeORM 查询、原生 SQL、异常 | `../docs/server/service.md` |
 | 鉴权与权限 | `../docs/server/authority.md` |
+| 对接 C 端服务：边界规则、独立数据源、调用内部管理接口 | `../docs/server/integration.md` |
 | 缓存 | `../docs/server/cache.md` |
 | 事件 | `../docs/server/event.md` |
-| 定时任务与队列 | `../docs/server/task.md` |
+| 定时任务（后台自身的维护任务） | `../docs/server/task.md` |
 | 多租户 | `../docs/server/tenant.md` |
 | WebSocket | `../docs/server/socket.md` |
 

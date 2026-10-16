@@ -1,13 +1,10 @@
 # 鉴权与权限
 
-采用无状态的 JWT 鉴权。登录成功后返回 `token` 和 `refreshToken`，客户端在请求头 `Authorization` 中携带 token，过期后用 refreshToken 换取新 token。
+本框架只服务管理后台，只有后台管理员一种登录身份。C 端用户（App、小程序等）的账号体系属于 C 端服务自己，不放在这里，对接方式见 `integration.md`。
 
-| 端 | 配置位置 | token 有效期 | refreshToken 有效期 |
-| --- | --- | --- | --- |
-| 后台 | `server/src/modules/base/config.ts` 的 `jwt` | 2 小时 | 15 天 |
-| App | `server/src/modules/user/config.ts` 的 `jwt` | 1 天 | 30 天 |
+采用无状态的 JWT 鉴权。登录成功后返回 `token`（默认 2 小时）和 `refreshToken`（默认 15 天），管理端在请求头 `Authorization` 中携带 token，过期后用 refreshToken 换取新 token。配置在 `server/src/modules/base/config.ts` 的 `jwt` 中。
 
-两处 `jwt.secret` 的默认值会在首次 `pnpm dev` 时由 `cool check` 自动替换成随机值，替换后不要再随意修改，否则已登录用户的 token 全部失效。
+`jwt.secret` 的默认值会在首次 `pnpm dev` 时由 `cool check` 自动替换成随机值，替换后不要再随意修改，否则已登录用户的 token 全部失效。
 
 ## 哪些接口需要登录
 
@@ -18,11 +15,10 @@
 | `/admin/**` | 后台用户登录 + 菜单权限 | `server/src/modules/base/middleware/authority.ts` |
 | `/admin/**/open/**` | 不校验 | 同上 |
 | `/admin/**/comm/**` | 只要登录，不校验权限 | 同上 |
-| `/app/**` | App 用户登录 | `server/src/modules/user/middleware/app.ts` |
-| 其他前缀（如 `controller/open` 下） | 不校验 | — |
+| `/admin` 以外的前缀（如 `controller/open` 下） | 不校验，只用于少量公开接口，如第三方回调 | — |
 | 打了 `TagTypes.IGNORE_TOKEN` 标签的接口 | 不校验 | 见 controller.md「路由标签」 |
 
-登录后，后台用户信息在 `ctx.admin`（含 `userId`、`username`、`roleIds` 等），App 用户信息在 `ctx.user`。
+登录后，后台用户信息在 `ctx.admin`（含 `userId`、`username`、`roleIds`、`tenantId` 等）。
 
 ## 后台权限模型
 
@@ -37,7 +33,3 @@
 实现在 `server/src/modules/base/service/sys/login.ts`：校验验证码 → 校验账号密码和状态 → 查询角色 → 生成 token 和 refreshToken → 把权限、部门、token 写入缓存（`admin:perms:<userId>`、`admin:token:<userId>` 等）。
 
 中间件每次请求会对比缓存里的 token 和密码版本，修改密码或在开启 `sso`（单点登录）时登录新设备，旧 token 会失效。
-
-## 其他端的鉴权
-
-需要给其他类型的客户端（例如第三方系统）做鉴权时，新建一个中间件，在模块 `config.ts` 的 `globalMiddlewares` 中注册，写法参考上面两个中间件。

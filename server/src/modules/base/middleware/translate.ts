@@ -84,36 +84,6 @@ export class BaseTranslateMiddleware
           }
         }
       }
-      // 处理字典翻译
-      if (url == '/admin/dict/info/list') {
-        for (const dict of data.data) {
-          dict.name = await this.baseTranslateService.translate(
-            'dict:info',
-            language,
-            dict.name
-          );
-        }
-      }
-      if (url == '/admin/dict/type/page') {
-        for (const dict of data.data.list) {
-          dict.name = await this.baseTranslateService.translate(
-            'dict:type',
-            language,
-            dict.name
-          );
-        }
-      }
-      if (url == '/admin/dict/info/data' || url == '/app/dict/info/data') {
-        for (const key in data.data) {
-          for (const item of data.data[key]) {
-            item.name = await this.baseTranslateService.translate(
-              'dict:info',
-              language,
-              item.name
-            );
-          }
-        }
-      }
     };
   }
 }

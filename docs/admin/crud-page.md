@@ -42,14 +42,16 @@ import { useCrud, useTable, useUpsert } from '@cool-vue/crud';
 import { reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCool } from '/@/cool';
-import { useDict } from '/$/dict';
 
 const { service } = useCool();
-const { dict } = useDict();
 const { t } = useI18n();
 
 // 页面用到的所有选项
 const options = reactive({
+	type: [
+		{ label: t('实物'), value: 0 },
+		{ label: t('虚拟'), value: 1 }
+	],
 	status: [
 		{ label: t('下架'), value: 0, type: 'danger' },
 		{ label: t('上架'), value: 1, type: 'success' }
@@ -69,9 +71,8 @@ const Table = useTable({
 		{ label: t('标题'), prop: 'title', minWidth: 160 },
 		{ label: t('编码'), prop: 'code', minWidth: 120 },
 		{ label: t('价格'), prop: 'price', minWidth: 100, sortable: 'custom' },
-		// 字典表中的字典
-		{ label: t('类型'), prop: 'type', minWidth: 100, dict: dict.get('goodsType') },
-		// 本地选项，自动显示为带颜色的标签
+		// dict 绑定选项，按 value 显示对应的标签，type 决定标签颜色
+		{ label: t('类型'), prop: 'type', minWidth: 100, dict: options.type },
 		{ label: t('状态'), prop: 'status', minWidth: 100, dict: options.status },
 		{ label: t('创建时间'), prop: 'createTime', minWidth: 170, sortable: 'desc' },
 		// 操作栏，默认有 edit、delete，可选 info
@@ -86,7 +87,7 @@ const Upsert = useUpsert<Eps.ShopGoodsEntity>({
 		{ label: t('标题'), prop: 'title', required: true, component: { name: 'el-input' } },
 		{ label: t('编码'), prop: 'code', span: 12, required: true, component: { name: 'el-input' } },
 		{ label: t('价格'), prop: 'price', span: 12, value: 0, component: { name: 'el-input-number', props: { min: 0, precision: 2 } } },
-		{ label: t('类型'), prop: 'type', span: 12, component: { name: 'cl-select', props: { options: dict.get('goodsType') } } },
+		{ label: t('类型'), prop: 'type', span: 12, component: { name: 'cl-select', props: { options: options.type } } },
 		{ label: t('状态'), prop: 'status', span: 12, value: 1, component: { name: 'el-radio-group', options: options.status } },
 		{ label: t('图片'), prop: 'cover', component: { name: 'cl-upload' } },
 		{ label: t('详情'), prop: 'content', component: { name: 'cl-editor-wang' } }

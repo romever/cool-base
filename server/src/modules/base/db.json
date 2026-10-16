@@ -1,41 +1,7 @@
 {
-  "base_sys_param": [
-      {
-          "keyName": "rich",
-          "name": "富文本参数",
-          "data": "<h3><strong>这是一个富文本</strong></h3><p>xxx</p><p>xxxxxxxxxx</p><p><br></p>",
-          "dataType": 1,
-          "remark": null
-      },
-      {
-          "keyName": "json",
-          "name": "JSON参数",
-          "data": "{\n  \"code\": 111233\n}",
-          "dataType": 0,
-          "remark": null
-      },
-      {
-          "keyName": "file",
-          "name": "文件",
-          "data": "",
-          "dataType": 2,
-          "remark": null
-      },
-      {
-          "keyName": "text",
-          "name": "测试",
-          "data": "这是一段字符串",
-          "dataType": 0,
-          "remark": null
-      }
-  ],
   "base_sys_conf": [
       {
           "cKey": "logKeep",
-          "cValue": "31"
-      },
-      {
-          "cKey": "recycleKeep",
           "cValue": "31"
       }
   ],

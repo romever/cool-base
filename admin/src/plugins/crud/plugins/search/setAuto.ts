@@ -1,6 +1,5 @@
 import { useCrud } from '@cool-vue/crud';
-import { isArray, isEmpty, isString } from 'lodash-es';
-import { useDict } from '/$/dict';
+import { isArray, isEmpty } from 'lodash-es';
 import { useI18n } from 'vue-i18n';
 
 /**
@@ -28,7 +27,6 @@ export function setAuto(
 			}
 		}
 
-		const { dict } = useDict();
 		const { t } = useI18n();
 
 		if (field.dict) {
@@ -41,10 +39,6 @@ export function setAuto(
 						value: i
 					};
 				});
-			}
-
-			if (isString(field.dict)) {
-				options = dict.get(field.dict);
 			}
 
 			return {

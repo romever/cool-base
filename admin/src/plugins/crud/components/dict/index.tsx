@@ -1,7 +1,7 @@
 import { defineComponent, h, ref, toValue, type PropType } from 'vue';
 import { CrudProps } from '../../comm';
 import { cloneDeep, isArray, isString } from 'lodash-es';
-import { deepFind } from '/$/dict/utils';
+import { deepFind } from '/@/cool/utils';
 
 export default defineComponent({
 	name: 'cl-dict',

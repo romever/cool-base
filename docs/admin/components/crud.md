@@ -35,11 +35,10 @@ CRUD 容器：串联表格、表单、搜索、分页，绑定 service 完成增
 				<cl-select :options="options.status" prop="status" :width="120" />
 			</cl-filter>
 
-			<!-- 字典 -->
-			<cl-filter label="工作（字典）">
+			<cl-filter label="工作">
 				<cl-select
 					tree
-					:options="dict.get('occupation')"
+					:options="occupation"
 					prop="occupation"
 					:width="140"
 					check-strictly
@@ -126,7 +125,6 @@ defineOptions({
 });
 
 import { useCrud, useUpsert, useTable, useAdvSearch, useSearch } from '@cool-vue/crud';
-import { useDict } from '/$/dict';
 import { reactive } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useCool } from '/@/cool';
@@ -134,8 +132,20 @@ import { useCool } from '/@/cool';
 // 基础
 const { service, refs, setRefs } = useCool();
 
-// 字典
-const { dict } = useDict();
+// 工作选项（树形），真实项目中来自接口或常量
+const occupation = [
+	{
+		label: '研发',
+		value: 1,
+		children: [
+			{ label: '前端', value: 11 },
+			{ label: '后端', value: 12 }
+		]
+	},
+	{ label: '产品', value: 2 },
+	{ label: '设计', value: 3 },
+	{ label: '运营', value: 4 }
+];
 
 // 选项，统一命名options，存放所有的下拉等其他选项列表数据
 const options = reactive({
@@ -299,7 +309,7 @@ const Upsert = useUpsert<Eps.UserInfoEntity>({
 			component: {
 				name: 'el-tree-select',
 				props: {
-					data: dict.get('occupation'),
+					data: occupation,
 					checkStrictly: true
 				}
 			}
@@ -448,7 +458,7 @@ const Table = useTable({
 		{
 			label: '工作',
 			prop: 'occupation',
-			dict: dict.get('occupation'),
+			dict: occupation,
 			dictColor: true,
 			minWidth: 150,
 			dictAllLevels: true, // 显示所有等级
@@ -458,7 +468,7 @@ const Table = useTable({
 				component: {
 					name: 'cl-select',
 					props: {
-						options: dict.get('occupation')
+						options: occupation
 					}
 				}
 			}
@@ -549,7 +559,7 @@ const AdvSearch = useAdvSearch({
 			},
 			component: {
 				name: 'el-select',
-				options: dict.get('occupation')
+				options: occupation
 			}
 		}
 	]
@@ -606,11 +616,23 @@ const Search = useSearch({
 
 <script setup lang="ts">
 import { useCrud, useTable, useUpsert } from '@cool-vue/crud';
-import { useDict } from '/$/dict';
 import { useCool } from '/@/cool';
 
 const { service } = useCool();
-const { dict } = useDict();
+// 工作选项（树形），真实项目中来自接口或常量
+const occupation = [
+	{
+		label: '研发',
+		value: 1,
+		children: [
+			{ label: '前端', value: 11 },
+			{ label: '后端', value: 12 }
+		]
+	},
+	{ label: '产品', value: 2 },
+	{ label: '设计', value: 3 },
+	{ label: '运营', value: 4 }
+];
 
 // cl-crud 配置
 const Crud = useCrud(
@@ -649,7 +671,7 @@ const Table = useTable({
 		{
 			label: '工作',
 			prop: 'occupation',
-			dict: dict.get('occupation'),
+			dict: occupation,
 			minWidth: 140
 		},
 		{
@@ -690,7 +712,7 @@ const Upsert = useUpsert({
 				props: {
 					tree: true,
 					checkStrictly: true,
-					options: dict.get('occupation')
+					options: occupation
 				}
 			}
 		}
@@ -732,9 +754,21 @@ const Upsert = useUpsert({
 
 <script setup lang="ts">
 import { useCrud, useTable, useUpsert } from '@cool-vue/crud';
-import { useDict } from '/$/dict';
 
-const { dict } = useDict();
+// 工作选项（树形），真实项目中来自接口或常量
+const occupation = [
+	{
+		label: '研发',
+		value: 1,
+		children: [
+			{ label: '前端', value: 11 },
+			{ label: '后端', value: 12 }
+		]
+	},
+	{ label: '产品', value: 2 },
+	{ label: '设计', value: 3 },
+	{ label: '运营', value: 4 }
+];
 
 // cl-crud 配置
 const Crud = useCrud(
@@ -794,7 +828,7 @@ const Table = useTable({
 		{
 			label: '工作',
 			prop: 'occupation',
-			dict: dict.get('occupation'),
+			dict: occupation,
 			minWidth: 140
 		},
 		{
@@ -835,7 +869,7 @@ const Upsert = useUpsert({
 				props: {
 					tree: true,
 					checkStrictly: true,
-					options: dict.get('occupation')
+					options: occupation
 				}
 			}
 		}
@@ -882,12 +916,24 @@ const Upsert = useUpsert({
 
 <script setup lang="ts">
 import { useCrud, useTable, useUpsert } from '@cool-vue/crud';
-import { useDict } from '/$/dict';
 import { useCool } from '/@/cool';
 import { ElMessage } from 'element-plus';
 
 const { service } = useCool();
-const { dict } = useDict();
+// 工作选项（树形），真实项目中来自接口或常量
+const occupation = [
+	{
+		label: '研发',
+		value: 1,
+		children: [
+			{ label: '前端', value: 11 },
+			{ label: '后端', value: 12 }
+		]
+	},
+	{ label: '产品', value: 2 },
+	{ label: '设计', value: 3 },
+	{ label: '运营', value: 4 }
+];
 
 // cl-crud 配置
 const Crud = useCrud(
@@ -939,7 +985,7 @@ const Table = useTable({
 		{
 			label: '工作',
 			prop: 'occupation',
-			dict: dict.get('occupation'),
+			dict: occupation,
 			minWidth: 140
 		},
 		{
@@ -981,7 +1027,7 @@ const Upsert = useUpsert({
 				props: {
 					tree: true,
 					checkStrictly: true,
-					options: dict.get('occupation')
+					options: occupation
 				}
 			}
 		}
@@ -1158,13 +1204,25 @@ function open() {
 <script setup lang="ts">
 import { useCrud, useTable, useUpsert } from '@cool-vue/crud';
 import { useCool } from '/@/cool';
-import { useDict } from '/$/dict';
 
 //【很重要】service 是所有请求的集合，是一个对象（刷新页面和保存代码会自动读取后端的所有接口）
 const { service, route } = useCool();
 console.log('service', service);
 
-const { dict } = useDict();
+// 工作选项（树形），真实项目中来自接口或常量
+const occupation = [
+	{
+		label: '研发',
+		value: 1,
+		children: [
+			{ label: '前端', value: 11 },
+			{ label: '后端', value: 12 }
+		]
+	},
+	{ label: '产品', value: 2 },
+	{ label: '设计', value: 3 },
+	{ label: '运营', value: 4 }
+];
 
 // cl-crud 配置
 const Crud = useCrud(
@@ -1234,7 +1292,7 @@ const Table = useTable({
 		{
 			label: '工作',
 			prop: 'occupation',
-			dict: dict.get('occupation'),
+			dict: occupation,
 			minWidth: 140
 		},
 		{
@@ -1275,7 +1333,7 @@ const Upsert = useUpsert({
 				props: {
 					tree: true,
 					checkStrictly: true,
-					options: dict.get('occupation')
+					options: occupation
 				}
 			}
 		}

@@ -121,10 +121,9 @@ export default (): ModuleConfig => {
 export default (): ModuleConfig => {
   return {
     onLoad({ hasToken }) {
-      const { dict } = useDict();
-      // 已登录时刷新字典
-      hasToken(() => {
-        dict.refresh();
+      // 已登录时才执行，例如预加载本模块要用的数据
+      hasToken(async () => {
+        await service.report.group.list();
       });
     },
   };

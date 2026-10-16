@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus';
 import dayjs from 'dayjs';
 import { isEmpty, orderBy } from 'lodash-es';
 import { export_json_to_excel } from '../utils';
-import { deepFind } from '/$/dict/utils';
+import { deepFind } from '/@/cool/utils';
 import { useI18n } from 'vue-i18n';
 
 export default defineComponent({

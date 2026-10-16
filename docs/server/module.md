@@ -8,14 +8,12 @@
 modules/shop/
 ├── controller/
 │   ├── admin/        后台接口，路由前缀 /admin/shop/...，需要登录和权限
-│   ├── app/          App/小程序接口，路由前缀 /app/shop/...，需要用户登录
-│   └── open/         （可选）免登录接口
+│   └── open/         （可选）免登录接口，如第三方回调
 ├── entity/           实体，见 entity.md
 ├── service/          业务逻辑，见 service.md
 ├── dto/              （可选）参数校验
 ├── middleware/       （可选）模块中间件
 ├── event/            （可选）事件监听，见 event.md
-├── queue/            （可选）队列，见 task.md
 ├── schedule/ 或 job/ （可选）定时任务，见 task.md
 ├── config.ts         必须，模块配置
 ├── db.json           （可选）模块初始化数据
@@ -59,18 +57,17 @@ shopConfig;
 
 ## db.json：初始化数据
 
-启动时会把 `db.json` 中的数据导入对应的表，key 是表名。
+启动时会把 `db.json` 中的数据导入对应的表，key 是表名。只用于后台自己的表（`default` 数据源），C 端的数据不通过这里初始化。
 
 ```json
 {
-  "dict_type": [
+  "report_group": [
     {
-      "name": "商品类型",
-      "key": "goodsType",
+      "name": "运营报表",
       "@childDatas": {
-        "dict_info": [
-          { "typeId": "@id", "name": "实物", "value": "0", "orderNum": 1 },
-          { "typeId": "@id", "name": "虚拟", "value": "1", "orderNum": 2 }
+        "report_item": [
+          { "groupId": "@id", "name": "日活", "orderNum": 1 },
+          { "groupId": "@id", "name": "留存", "orderNum": 2 }
         ]
       }
     }

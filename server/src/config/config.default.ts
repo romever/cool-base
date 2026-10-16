@@ -85,7 +85,7 @@ export default {
       // 插入模式，save不会校验字段(允许传入不存在的字段)，insert会校验字段
       upsert: 'save',
       // 软删除
-      softDelete: true,
+      softDelete: false,
     },
   } as CoolConfig,
 } as MidwayConfig;

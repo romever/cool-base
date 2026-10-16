@@ -1,6 +1,8 @@
 # cool-base
 
-基于 [cool-admin](https://cool-js.com) 8.x（Midway 后端 + Vue3 管理端）整理的通用后台框架。新项目直接复制本仓库，在上面开发业务模块即可。
+基于 [cool-admin](https://cool-js.com) 8.x（Midway 后端 + Vue3 管理端）整理的通用管理后台框架。新项目直接复制本仓库，在上面开发后台业务模块即可。
+
+本框架只包含管理后台，不包含面向 C 端用户的服务。C 端服务（小程序、App 的后端）独立开发、可以用任何语言，后台通过共享数据库或调用其内部接口来管理，见 [docs/server/integration.md](docs/server/integration.md)。
 
 ## 目录
 
@@ -36,10 +38,9 @@ pnpm dev
 ## 基于本框架开新项目
 
 1. 复制本仓库（不要带 `.git`），重新 `git init`。
-2. 首次 `pnpm dev` 时，`cool check` 会自动把下面三个默认值替换成随机值，替换后的文件要提交到新项目里。本模板仓库自身保持默认值，不要把替换后的值提交回模板：
+2. 首次 `pnpm dev` 时，`cool check` 会自动把下面两个默认值替换成随机值，替换后的文件要提交到新项目里。本模板仓库自身保持默认值，不要把替换后的值提交回模板：
    - `server/src/config/config.default.ts` 的 `keys`（同时决定本地数据目录 `~/.cool-admin/<md5(keys)>/`）
    - `server/src/modules/base/config.ts` 的 `jwt.secret`（后台 token 密钥）
-   - `server/src/modules/user/config.ts` 的 `jwt.secret`（App 用户 token 密钥）
 3. 按需修改：
 
 | 位置 | 内容 |

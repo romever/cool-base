@@ -297,5 +297,37 @@ export function sleep(duration: number) {
 	});
 }
 
+/**
+ * 在树形选项中按 value 查找节点
+ * @param allLevels 为 true 时 label 返回完整路径，如「一级 / 二级」
+ */
+export function deepFind(value: any, list: any[], options?: { allLevels: boolean }) {
+	const { allLevels = true } = options || {};
+
+	function deep(arr: any[], name: string[]): any | undefined {
+		for (const e of arr) {
+			if (e.value === value) {
+				if (allLevels) {
+					return {
+						...e,
+						label: [...name, e.label].join(' / ')
+					};
+				} else {
+					return e;
+				}
+			} else if (e.children) {
+				const d = deep(e.children, [...name, e.label]);
+
+				if (d !== undefined) {
+					return d;
+				}
+			}
+		}
+		return undefined;
+	}
+
+	return deep(list, []);
+}
+
 export { storage };
 export * from './loading';

@@ -42,11 +42,7 @@ export class ShopGoodsEntity extends BaseEntity {
   @Column({ comment: '价格', type: 'decimal', precision: 10, scale: 2, default: 0 })
   price: number;
 
-  // 引用字典表中 key 为 goodsType 的字典
-  @Column({ comment: '类型', dict: 'goodsType', default: 0 })
-  type: number;
-
-  // 固定可选项：值是数组下标，0-下架 1-上架
+  // 可选项：值是数组下标，0-下架 1-上架
   @Column({ comment: '状态', dict: ['下架', '上架'], default: 1 })
   status: number;
 
@@ -67,7 +63,7 @@ export class ShopGoodsEntity extends BaseEntity {
 
 - 表名 `模块_表`，类名 `模块 + 表 + Entity`，字段驼峰。
 - 经常用于筛选、关联的字段加 `@Index()`。
-- 状态、类型等枚举字段一定要配置 `dict`。前端代码生成和表格展示会根据它自动生成选项和标签。
+- 状态、类型等枚举字段一定要用 `dict: ['选项0', '选项1', ...]` 声明可选项，值就是数组下标。前端代码生成和表格展示会根据它自动生成选项和标签。
 - 实体所在层级变了，`BaseEntity` 的相对路径也要跟着变，例如 `entity/sys/xxx.ts` 中是 `../base`（base 模块内）或 `../../../base/entity/base`（其他模块）。
 
 ## 不使用外键

@@ -89,11 +89,7 @@ export class BaseAuthorityMiddleware
             }
           }
           // 要登录每个人都有权限的接口
-          if (
-            new RegExp(`^${adminUrl}?.*/comm/`).test(url) ||
-            // 字典接口
-            url == '/admin/dict/info/data'
-          ) {
+          if (new RegExp(`^${adminUrl}?.*/comm/`).test(url)) {
             await next();
             return;
           }

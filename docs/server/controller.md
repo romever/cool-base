@@ -9,7 +9,6 @@
 | 文件 | 路由前缀 |
 | --- | --- |
 | `modules/shop/controller/admin/goods.ts` | `/admin/shop/goods` |
-| `modules/shop/controller/app/goods.ts` | `/app/shop/goods` |
 | `modules/base/controller/admin/sys/user.ts` | `/admin/base/sys/user` |
 
 方法路径拼在后面，例如 `/admin/shop/goods/page`。
@@ -66,7 +65,7 @@ export class AdminShopGoodsController extends BaseController {
 }
 ```
 
-类名约定：`Admin/App + 模块 + 实体 + Controller`，例如 `AdminShopGoodsController`。
+类名约定：`Admin + 模块 + 实体 + Controller`，例如 `AdminShopGoodsController`。
 
 ### CrudOption
 
@@ -144,20 +143,20 @@ Controller 里只做转发时，直接把 Service 方法暴露出去，不用再
 export class AdminShopGoodsController extends BaseController {}
 ```
 
-注册出来的都是 POST 接口（如 `/admin/shop/goods/syncStock`），参数从 body 传入 Service 方法。
+注册出来的都是 POST 接口（如 `/admin/shop/goods/syncStock`），**整个请求 body 作为唯一参数**传给 Service 方法，所以方法要写成 `async syncStock(params: { ... })`。
 
 ## 路由标签：给接口打标记
 
-最常见的用法是让某个接口免登录：
+最常见的用法是让某个后台接口免登录：
 
 ```ts
 import { CoolController, BaseController, CoolTag, TagTypes } from '@cool-midway/core';
 
 @CoolController({ api: ['page', 'info'], entity: ShopGoodsEntity })
-export class AppShopGoodsController extends BaseController {
+export class AdminShopGoodsController extends BaseController {
   @CoolTag(TagTypes.IGNORE_TOKEN)
-  @Get('/hot', { summary: '热门商品' })
-  async hot() {}
+  @Get('/publicStat', { summary: '公开统计' })
+  async publicStat() {}
 }
 ```
 

@@ -62,7 +62,6 @@ export class TenantSubscriber implements EntitySubscriberInterface<any> {
     '/admin/base/open/login',
     '/admin/base/comm/person',
     '/admin/base/comm/permmenu',
-    '/admin/dict/info/data',
   ];
 
   // 不进行租户过滤的用户
@@ -79,15 +78,7 @@ export class TenantSubscriber implements EntitySubscriberInterface<any> {
       TagTypes.IGNORE_TOKEN,
       'admin'
     );
-    const appIgnoreUrls = this.coolUrlTagData.byKey(
-      TagTypes.IGNORE_TOKEN,
-      'app'
-    );
-    this.ignoreUrls = [
-      ...this.ignoreUrls,
-      ...adminIgnoreUrls,
-      ...appIgnoreUrls,
-    ];
+    this.ignoreUrls = [...this.ignoreUrls, ...adminIgnoreUrls];
     // 去重
     this.ignoreUrls = _.uniq(this.ignoreUrls);
     return this.ignoreUrls;
@@ -145,8 +136,6 @@ export class TenantSubscriber implements EntitySubscriberInterface<any> {
     }
     if (_.startsWith(url, '/admin/')) {
       tenantId = ctx?.admin?.tenantId;
-    } else if (_.startsWith(url, '/app/')) {
-      tenantId = ctx?.user?.tenantId;
     }
     if (tenantId && url) {
       return tenantId;

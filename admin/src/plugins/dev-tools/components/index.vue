@@ -55,12 +55,11 @@
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getIcon } from '../utils';
-import { service, storage } from '/@/cool';
+import { storage } from '/@/cool';
 import { checkPerm, useBase } from '/$/base';
 
 import Logo from '../static/logo.png';
 import ToolEps from './eps.vue';
-import ToolDict from './dict.vue';
 import ToolProxy from './proxy.vue';
 import ToolDoc from './doc.vue';
 import ToolAccount from './account.vue';
@@ -71,11 +70,22 @@ const { user } = useBase();
 
 const components = {
 	eps: ToolEps,
-	dict: ToolDict,
 	proxy: ToolProxy,
 	doc: ToolDoc,
 	account: ToolAccount
 };
+
+/**
+ * 工具栏标签页，isLogin、permission 用于控制是否显示
+ */
+interface DevTab {
+	label: string;
+	value: string;
+	icon: string;
+	link?: string;
+	isLogin?: boolean;
+	permission?: Parameters<typeof checkPerm>[0];
+}
 
 const tab = reactive({
 	active: storage.get('devTools.tab') || 'eps',
@@ -92,15 +102,6 @@ const tab = reactive({
 			icon: 'icon-jingji'
 		},
 		{
-			label: t('字典'),
-			value: 'dict',
-			icon: 'icon-dingdanliebiao',
-			isLogin: true,
-			permission: {
-				and: [service.dict.info.permission.list, service.dict.type.permission.list]
-			}
-		},
-		{
 			label: t('账号'),
 			value: 'account',
 			icon: 'icon-geren'
@@ -110,7 +111,7 @@ const tab = reactive({
 			value: 'doc',
 			icon: 'icon-shuben'
 		}
-	],
+	] as DevTab[],
 
 	change(item: any) {
 		if (item.link) {
