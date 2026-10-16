@@ -1,0 +1,17 @@
+packages:
+  - server
+  - admin
+
+# 每个子项目使用自己的 node_modules/.pnpm 和 lockfile。
+# @cool-midway/core 通过自身所在的 node_modules 路径推算后端运行目录（<项目>/dist），
+# 依赖若统一放在仓库根目录的 node_modules 下，会推算成错误的目录导致模块无法加载。
+sharedWorkspaceLockfile: false
+
+# 允许执行安装脚本的依赖（pnpm 默认禁止依赖的 postinstall）
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: true
+  es5-ext: true
+  esbuild: true
+  msgpackr-extract: false
+  vue-demi: true

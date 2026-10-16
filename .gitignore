@@ -1,0 +1,29 @@
+# 依赖与构建产物
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.tsbuildinfo
+.tsbuildinfo.*
+
+# 日志
+logs/
+*.log
+
+# 编辑器与系统文件
+.idea/
+.DS_Store
+*.sw*
+*.un~
+
+# server 运行时数据（缓存、上传文件、本地数据、初始化锁）
+server/cache/
+server/run/
+server/build/
+server/data/*
+server/public/uploads/*
+server/src/index.ts
+
+# admin
+admin/vite.config.ts.timestamp*
+admin/*.local
