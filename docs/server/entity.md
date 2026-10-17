@@ -100,7 +100,7 @@ refundStatus: number;
 
 ## 数据库配置
 
-在 `server/src/config/config.local.ts`（本地）和 `config.prod.ts`（生产）中配置 `typeorm.dataSource.default`：
+在 `server/src/config/config.local.ts`（本地）和 `config.prod.ts`（生产）中配置 `typeorm.dataSource.default`。生产环境的连接信息从环境变量 `DB_HOST`、`DB_PORT`、`DB_USERNAME`、`DB_PASSWORD`、`DB_DATABASE` 读取，缺任意一个服务都会启动失败。本地配置示例：
 
 ```ts
 typeorm: {

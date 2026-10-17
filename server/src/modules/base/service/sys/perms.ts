@@ -8,6 +8,12 @@ import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
 import { BaseSysRoleEntity } from '../../entity/sys/role';
 import { In, Repository } from 'typeorm';
 import { InjectEntityModel } from '@midwayjs/typeorm';
+import * as _ from 'lodash';
+
+/**
+ * 超管角色的标识（角色的 label 字段），拥有该角色的用户即为超管
+ */
+export const SUPER_ADMIN_ROLE_LABEL = 'admin';
 
 /**
  * 权限
@@ -55,9 +61,17 @@ export class BaseSysPermsService extends BaseService {
    * @param roleIds
    */
   async isAdmin(roleIds: number[]) {
+    if (_.isEmpty(roleIds)) return false;
     const roles = await this.baseSysRoleEntity.findBy({ id: In(roleIds) });
-    const roleLabels = roles.map(item => item.label);
-    return roleLabels.includes('admin');
+    return roles.some(item => item.label === SUPER_ADMIN_ROLE_LABEL);
+  }
+
+  /**
+   * 根据用户ID判断是不是超管
+   * @param userId
+   */
+  async isAdminUser(userId: number) {
+    return this.isAdmin(await this.baseSysRoleService.getByUser(userId));
   }
 
   /**
@@ -68,7 +82,7 @@ export class BaseSysPermsService extends BaseService {
     const perms = await this.baseSysMenuService.getPerms(roleIds);
     const menus = await this.baseSysMenuService.getMenus(
       roleIds,
-      this.ctx.admin.username === 'admin'
+      this.ctx.admin.isSuperAdmin
     );
     return { perms, menus };
   }

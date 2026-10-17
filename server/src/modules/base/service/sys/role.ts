@@ -1,13 +1,13 @@
 import { Inject, Provide } from '@midwayjs/core';
-import { BaseService } from '@cool-midway/core';
+import { BaseService, CoolCommException } from '@cool-midway/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { BaseSysRoleEntity } from '../../entity/sys/role';
 import { BaseSysUserRoleEntity } from '../../entity/sys/user_role';
 import * as _ from 'lodash';
 import { BaseSysRoleMenuEntity } from '../../entity/sys/role_menu';
 import { BaseSysRoleDepartmentEntity } from '../../entity/sys/role_department';
-import { BaseSysPermsService } from './perms';
+import { BaseSysPermsService, SUPER_ADMIN_ROLE_LABEL } from './perms';
 import { Brackets } from 'typeorm';
 
 /**
@@ -45,6 +45,30 @@ export class BaseSysRoleService extends BaseService {
       });
     }
     return [];
+  }
+
+  /**
+   * 超管角色只能由初始化数据创建，不允许通过接口新增、修改、删除
+   * @param data
+   * @param type
+   */
+  async modifyBefore(data, type: 'delete' | 'update' | 'add') {
+    if (type === 'delete') {
+      const roles = await this.baseSysRoleEntity.findBy({ id: In(data) });
+      if (roles.some(e => e.label === SUPER_ADMIN_ROLE_LABEL)) {
+        throw new CoolCommException('超管角色不允许删除');
+      }
+      return;
+    }
+    if (data.label === SUPER_ADMIN_ROLE_LABEL) {
+      throw new CoolCommException('不能使用超管角色的标识');
+    }
+    if (type === 'update') {
+      const role = await this.baseSysRoleEntity.findOneBy({ id: data.id });
+      if (role?.label === SUPER_ADMIN_ROLE_LABEL) {
+        throw new CoolCommException('超管角色不允许修改');
+      }
+    }
   }
 
   /**
@@ -95,15 +119,14 @@ export class BaseSysRoleService extends BaseService {
   async info(id) {
     const info = await this.baseSysRoleEntity.findOneBy({ id });
     if (info) {
-      const menus = await this.baseSysRoleMenuEntity.findBy(
-        id !== 1 ? { roleId: id } : {}
-      );
+      // 超管角色拥有全部菜单和部门
+      const where =
+        info.label === SUPER_ADMIN_ROLE_LABEL ? {} : { roleId: info.id };
+      const menus = await this.baseSysRoleMenuEntity.findBy(where);
       const menuIdList = menus.map(e => {
         return parseInt(e.menuId + '');
       });
-      const departments = await this.baseSysRoleDepartmentEntity.findBy(
-        id !== 1 ? { roleId: id } : {}
-      );
+      const departments = await this.baseSysRoleDepartmentEntity.findBy(where);
       const departmentIdList = departments.map(e => {
         return parseInt(e.departmentId + '');
       });
@@ -121,9 +144,10 @@ export class BaseSysRoleService extends BaseService {
       .createQueryBuilder('a')
       .where(
         new Brackets(qb => {
-          qb.where('a.id !=:id', { id: 1 }); // 超级管理员的角色不展示
+          // 超级管理员的角色不展示
+          qb.where('a.label != :label', { label: SUPER_ADMIN_ROLE_LABEL });
           // 如果不是超管，只能看到自己新建的或者自己有的角色
-          if (this.ctx.admin.username !== 'admin') {
+          if (!this.ctx.admin.isSuperAdmin) {
             qb.andWhere('(a.userId=:userId or a.id in (:...roleId))', {
               userId: this.ctx.admin.userId,
               roleId: this.ctx.admin.roleIds,

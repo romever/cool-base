@@ -3,13 +3,13 @@ import { BaseService, CoolCommException } from '@cool-midway/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
 import { Equal, In, Repository } from 'typeorm';
 import { BaseSysUserEntity } from '../../entity/sys/user';
-import { BaseSysPermsService } from './perms';
+import { BaseSysPermsService, SUPER_ADMIN_ROLE_LABEL } from './perms';
 import * as _ from 'lodash';
 import { BaseSysUserRoleEntity } from '../../entity/sys/user_role';
-import * as md5 from 'md5';
 import { BaseSysDepartmentEntity } from '../../entity/sys/department';
 import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
 import { BaseSysRoleEntity } from '../../entity/sys/role';
+import { hashPassword, verifyPassword } from '../../../../comm/password';
 
 /**
  * 系统用户
@@ -62,9 +62,13 @@ export class BaseSysUserService extends BaseService {
               `%${keyWord}%`,
               `%${keyWord}%`,
             ])}
-            ${this.setSql(true, 'and a.username != ?', ['admin'])}
             ${this.setSql(
-              this.ctx.admin.username !== 'admin',
+              true,
+              'and a.id not in (select ur.userId from base_sys_user_role ur inner join base_sys_role r on ur.roleId = r.id where r.label = ?)',
+              [SUPER_ADMIN_ROLE_LABEL]
+            )}
+            ${this.setSql(
+              !this.ctx.admin.isSuperAdmin,
               `and (a.departmentId in (?) or a.userId = ${userId})`,
               [!_.isEmpty(permsDepartmentArr) ? permsDepartmentArr : [null]]
             )} `;
@@ -114,9 +118,6 @@ export class BaseSysUserService extends BaseService {
     if (_.isEmpty(user.roleIdList)) {
       return;
     }
-    if (user.username === 'admin') {
-      throw new CoolCommException('非法操作~');
-    }
     await this.baseSysUserRoleEntity.delete({ userId: user.id });
     if (user.roleIdList) {
       for (const roleId of user.roleIdList) {
@@ -127,17 +128,48 @@ export class BaseSysUserService extends BaseService {
   }
 
   /**
+   * 超管用户不允许通过用户管理修改，超管角色不允许分配给其他用户
+   * @param param
+   */
+  async checkSuperAdmin(param) {
+    if (param.id && (await this.baseSysPermsService.isAdminUser(param.id))) {
+      throw new CoolCommException('超管用户不允许修改');
+    }
+    if (
+      !_.isEmpty(param.roleIdList) &&
+      (await this.baseSysPermsService.isAdmin(param.roleIdList))
+    ) {
+      throw new CoolCommException('不能分配超管角色');
+    }
+  }
+
+  /**
+   * 删除前校验：超管用户不允许删除
+   * @param data
+   * @param type
+   */
+  async modifyBefore(data, type: 'delete' | 'update' | 'add') {
+    if (type !== 'delete') return;
+    for (const userId of data) {
+      if (await this.baseSysPermsService.isAdminUser(userId)) {
+        throw new CoolCommException('超管用户不允许删除');
+      }
+    }
+  }
+
+  /**
    * 新增
    * @param param
    */
   async add(param) {
+    await this.checkSuperAdmin(param);
     const exists = await this.baseSysUserEntity.findOneBy({
       username: param.username,
     });
     if (!_.isEmpty(exists)) {
       throw new CoolCommException('用户名已经存在~');
     }
-    param.password = md5(param.password);
+    param.password = await hashPassword(param.password);
     await super.add(param);
     await this.updateUserRole(param);
     return param.id;
@@ -178,15 +210,14 @@ export class BaseSysUserService extends BaseService {
   public async personUpdate(param) {
     param.id = this.ctx.admin.userId;
     if (!_.isEmpty(param.password)) {
-      param.password = md5(param.password);
-      const oldPassword = md5(param.oldPassword);
       const userInfo = await this.baseSysUserEntity.findOneBy({ id: param.id });
       if (!userInfo) {
         throw new CoolCommException('用户不存在');
       }
-      if (oldPassword !== userInfo.password) {
+      if (!(await verifyPassword(param.oldPassword, userInfo.password))) {
         throw new CoolCommException('原密码错误');
       }
+      param.password = await hashPassword(param.password);
       param.passwordV = userInfo.passwordV + 1;
       await this.midwayCache.set(
         `admin:passwordVersion:${param.id}`,
@@ -203,11 +234,9 @@ export class BaseSysUserService extends BaseService {
    * @param param 数据
    */
   async update(param) {
-    if (param.id && param.username === 'admin') {
-      throw new CoolCommException('非法操作~');
-    }
+    await this.checkSuperAdmin(param);
     if (!_.isEmpty(param.password)) {
-      param.password = md5(param.password);
+      param.password = await hashPassword(param.password);
       const userInfo = await this.baseSysUserEntity.findOneBy({ id: param.id });
       if (!userInfo) {
         throw new CoolCommException('用户不存在');

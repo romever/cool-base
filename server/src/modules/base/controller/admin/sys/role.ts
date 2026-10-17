@@ -3,6 +3,7 @@ import { CoolController, BaseController } from '@cool-midway/core';
 import { Context } from 'vm';
 import { BaseSysRoleEntity } from '../../../entity/sys/role';
 import { BaseSysRoleService } from '../../../service/sys/role';
+import { SUPER_ADMIN_ROLE_LABEL } from '../../../service/sys/perms';
 
 /**
  * 系统角色
@@ -21,15 +22,15 @@ import { BaseSysRoleService } from '../../../service/sys/role';
   pageQueryOp: {
     keyWordLikeFields: ['a.name', 'a.label'],
     where: async (ctx: Context) => {
-      const { userId, roleIds, username } = ctx.admin;
+      const { userId, roleIds, isSuperAdmin } = ctx.admin;
       return [
         // 超级管理员的角色不展示
-        ['a.label != :label', { label: 'admin' }],
+        ['a.label != :label', { label: SUPER_ADMIN_ROLE_LABEL }],
         // 如果不是超管，只能看到自己新建的或者自己有的角色
         [
           `(a.userId=:userId or a.id in (${roleIds.join(',')}))`,
           { userId },
-          username !== 'admin',
+          !isSuperAdmin,
         ],
       ];
     },

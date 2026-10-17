@@ -2,6 +2,7 @@ import { BaseLogMiddleware } from './middleware/log';
 import { BaseAuthorityMiddleware } from './middleware/authority';
 import { ModuleConfig } from '@cool-midway/core';
 import { BaseTranslateMiddleware } from './middleware/translate';
+import { isLocalEnv, requireEnv } from '../../comm/env';
 
 /**
  * 模块的配置
@@ -24,8 +25,10 @@ export default () => {
     jwt: {
       // 单点登录
       sso: false,
-      // 注意： 最好重新修改，防止破解
-      secret: 'cool-admin-xxxxxx',
+      // 本地开发使用固定密钥，其它环境必须通过环境变量 JWT_SECRET 提供
+      secret: isLocalEnv()
+        ? 'cool-admin-local-secret'
+        : requireEnv('JWT_SECRET'),
       // token
       token: {
         // 2小时过期，需要用刷新token

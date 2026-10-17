@@ -49,7 +49,7 @@
           "departmentId": 1,
           "name": "超级管理员",
           "username": "admin",
-          "password": "e10adc3949ba59abbe56e057f20f883e",
+          "password": "$2b$10$08M15DSzc0Li05fnHzOXUuZWEe4IUqwZ7yF/WrvU6wC62iFI20uA2",
           "passwordV": 7,
           "nickName": "管理员",
           "phone": "18000000000",

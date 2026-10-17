@@ -6,7 +6,6 @@ import {
   CoolUrlTag,
   CoolTag,
   TagTypes,
-  RESCODE,
 } from '@cool-midway/core';
 import { LoginDTO } from '../../dto/login';
 import { BaseSysLoginService } from '../../service/sys/login';
@@ -71,15 +70,6 @@ export class BaseOpenController extends BaseController {
   @CoolTag(TagTypes.IGNORE_TOKEN)
   @Get('/refreshToken', { summary: '刷新token' })
   async refreshToken(@Query('refreshToken') refreshToken: string) {
-    try {
-      const token = await this.baseSysLoginService.refreshToken(refreshToken);
-      return this.ok(token);
-    } catch (e) {
-      this.ctx.status = 401;
-      this.ctx.body = {
-        code: RESCODE.COMMFAIL,
-        message: '登录失效~',
-      };
-    }
+    return this.ok(await this.baseSysLoginService.refreshToken(refreshToken));
   }
 }

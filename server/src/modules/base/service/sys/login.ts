@@ -5,11 +5,12 @@ import { v1 as uuid } from 'uuid';
 import { BaseSysUserEntity } from '../../entity/sys/user';
 import { Repository } from 'typeorm';
 import { InjectEntityModel } from '@midwayjs/typeorm';
-import * as md5 from 'md5';
 import { BaseSysRoleService } from './role';
 import * as _ from 'lodash';
 import { BaseSysMenuService } from './menu';
 import { BaseSysDepartmentService } from './department';
+import { BaseSysPermsService } from './perms';
+import { verifyPassword } from '../../../../comm/password';
 import * as jwt from 'jsonwebtoken';
 import { Context } from '@midwayjs/koa';
 import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
@@ -37,6 +38,9 @@ export class BaseSysLoginService extends BaseService {
   baseSysDepartmentService: BaseSysDepartmentService;
 
   @Inject()
+  baseSysPermsService: BaseSysPermsService;
+
+  @Inject()
   ctx: Context;
 
   @Inject()
@@ -53,55 +57,61 @@ export class BaseSysLoginService extends BaseService {
     const { username, captchaId, verifyCode, password } = login;
     // 校验验证码
     const checkV = await this.captchaCheck(captchaId, verifyCode);
-    if (checkV) {
-      const user = await this.baseSysUserEntity.findOneBy({ username });
-      // 校验用户
-      if (user) {
-        // 校验用户状态及密码
-        if (user.status === 0 || user.password !== md5(password)) {
-          throw new CoolCommException('账户或密码不正确~');
-        }
-      } else {
-        throw new CoolCommException('账户或密码不正确~');
-      }
-      // 校验角色
-      const roleIds = await this.baseSysRoleService.getByUser(user.id);
-      if (_.isEmpty(roleIds)) {
-        throw new CoolCommException('该用户未设置任何角色，无法登录~');
-      }
-
-      // 生成token
-      const { expire, refreshExpire } = this.coolConfig.jwt.token;
-      const result = {
-        expire,
-        token: await this.generateToken(user, roleIds, expire),
-        refreshExpire,
-        refreshToken: await this.generateToken(
-          user,
-          roleIds,
-          refreshExpire,
-          true
-        ),
-      };
-
-      // 将用户相关信息保存到缓存
-      const perms = await this.baseSysMenuService.getPerms(roleIds);
-      const departments = await this.baseSysDepartmentService.getByRoleIds(
-        roleIds,
-        user.username === 'admin'
-      );
-      await this.midwayCache.set(`admin:department:${user.id}`, departments);
-      await this.midwayCache.set(`admin:perms:${user.id}`, perms);
-      await this.midwayCache.set(`admin:token:${user.id}`, result.token);
-      await this.midwayCache.set(
-        `admin:token:refresh:${user.id}`,
-        result.token
-      );
-
-      return result;
-    } else {
+    if (!checkV) {
       throw new CoolCommException('验证码不正确');
     }
+    const user = await this.baseSysUserEntity.findOneBy({ username });
+    // 校验用户状态及密码
+    if (
+      !user ||
+      user.status === 0 ||
+      !(await verifyPassword(password, user.password))
+    ) {
+      throw new CoolCommException('账户或密码不正确~');
+    }
+    return this.createSession(user);
+  }
+
+  /**
+   * 建立登录会话：按用户当前的角色生成 token，并把权限、部门、token 写入缓存
+   * @param user 用户
+   */
+  async createSession(user: BaseSysUserEntity) {
+    const roleIds = await this.baseSysRoleService.getByUser(user.id);
+    if (_.isEmpty(roleIds)) {
+      throw new CoolCommException('该用户未设置任何角色，无法登录~');
+    }
+    const isSuperAdmin = await this.baseSysPermsService.isAdmin(roleIds);
+
+    const { expire, refreshExpire } = this.coolConfig.jwt.token;
+    const result = {
+      expire,
+      token: await this.generateToken(user, roleIds, isSuperAdmin, expire),
+      refreshExpire,
+      refreshToken: await this.generateToken(
+        user,
+        roleIds,
+        isSuperAdmin,
+        refreshExpire,
+        true
+      ),
+    };
+
+    // 将用户相关信息保存到缓存
+    const perms = await this.baseSysMenuService.getPerms(roleIds);
+    const departments = await this.baseSysDepartmentService.getByRoleIds(
+      roleIds,
+      isSuperAdmin
+    );
+    await this.midwayCache.set(`admin:department:${user.id}`, departments);
+    await this.midwayCache.set(`admin:perms:${user.id}`, perms);
+    await this.midwayCache.set(`admin:token:${user.id}`, result.token);
+    await this.midwayCache.set(
+      `admin:token:refresh:${user.id}`,
+      result.refreshToken
+    );
+
+    return result;
   }
 
   /**
@@ -181,10 +191,11 @@ export class BaseSysLoginService extends BaseService {
    * 生成token
    * @param user 用户对象
    * @param roleIds 角色集合
+   * @param isSuperAdmin 是否超管
    * @param expire 过期
    * @param isRefresh 是否是刷新
    */
-  async generateToken(user, roleIds, expire, isRefresh?) {
+  async generateToken(user, roleIds, isSuperAdmin, expire, isRefresh?) {
     await this.midwayCache.set(
       `admin:passwordVersion:${user.id}`,
       user.passwordV
@@ -192,6 +203,7 @@ export class BaseSysLoginService extends BaseService {
     const tokenInfo = {
       isRefresh: false,
       roleIds,
+      isSuperAdmin,
       username: user.username,
       userId: user.id,
       passwordVersion: user.passwordV,
@@ -210,34 +222,28 @@ export class BaseSysLoginService extends BaseService {
    * @param token
    */
   async refreshToken(token: string) {
-    const decoded = jwt.verify(token, this.coolConfig.jwt.secret);
-    if (decoded && decoded['isRefresh']) {
-      delete decoded['exp'];
-      delete decoded['iat'];
-
-      const { expire, refreshExpire } = this.coolConfig.jwt.token;
-      decoded['isRefresh'] = false;
-      const result = {
-        expire,
-        token: jwt.sign(decoded, this.coolConfig.jwt.secret, {
-          expiresIn: expire,
-        }),
-        refreshExpire,
-        refreshToken: '',
-      };
-      decoded['isRefresh'] = true;
-      result.refreshToken = jwt.sign(decoded, this.coolConfig.jwt.secret, {
-        expiresIn: refreshExpire,
-      });
-      await this.midwayCache.set(
-        `admin:passwordVersion:${decoded['userId']}`,
-        decoded['passwordVersion']
-      );
-      await this.midwayCache.set(
-        `admin:token:${decoded['userId']}`,
-        result.token
-      );
-      return result;
+    let decoded;
+    try {
+      decoded = jwt.verify(token, this.coolConfig.jwt.secret);
+    } catch (err) {
+      // 只把 jwt 校验失败视为登录失效，其它异常继续抛出
+      if (!(err instanceof jwt.JsonWebTokenError)) throw err;
+      throw new CoolCommException('登录失效~', 401);
     }
+    if (!decoded.isRefresh) {
+      throw new CoolCommException('登录失效~', 401);
+    }
+    // 重新读取用户：禁用或改过密码后，旧的 refreshToken 不能再换取新 token
+    const user = await this.baseSysUserEntity.findOneBy({
+      id: decoded.userId,
+    });
+    if (
+      !user ||
+      user.status === 0 ||
+      user.passwordV !== decoded.passwordVersion
+    ) {
+      throw new CoolCommException('登录失效~', 401);
+    }
+    return this.createSession(user);
   }
 }

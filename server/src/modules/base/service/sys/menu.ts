@@ -45,7 +45,7 @@ export class BaseSysMenuService extends BaseService {
   async list() {
     const menus = await this.getMenus(
       this.ctx.admin.roleIds,
-      this.ctx.admin.username === 'admin'
+      this.ctx.admin.isSuperAdmin
     );
     if (!_.isEmpty(menus)) {
       menus.forEach((e: any) => {

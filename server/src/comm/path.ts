@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as os from 'os';
-import * as md5 from 'md5';
+import { createHash } from 'crypto';
 import * as fs from 'fs';
 
 /**
@@ -19,7 +19,11 @@ const getKeys = () => {
  * @returns
  */
 export const pDataPath = () => {
-  const dirPath = path.join(os.homedir(), '.cool-admin', md5(getKeys()));
+  const dirPath = path.join(
+    os.homedir(),
+    '.cool-admin',
+    createHash('md5').update(getKeys()).digest('hex')
+  );
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }

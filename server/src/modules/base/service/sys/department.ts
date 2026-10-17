@@ -39,7 +39,7 @@ export class BaseSysDepartmentService extends BaseService {
 
     // 过滤部门权限
     const find = this.baseSysDepartmentEntity.createQueryBuilder('a');
-    if (this.ctx.admin.username !== 'admin') {
+    if (!this.ctx.admin.isSuperAdmin) {
       find.andWhere('a.id in (:...ids)', {
         ids: !_.isEmpty(permsDepartmentArr) ? permsDepartmentArr : [null],
       });
