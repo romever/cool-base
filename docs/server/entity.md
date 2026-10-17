@@ -114,8 +114,8 @@ typeorm: {
       username: 'postgres',
       password: '123456',
       database: 'cool',
-      // 自动同步表结构，只能在本地开启，线上开启可能丢数据
-      synchronize: true,
+      // 表结构只通过迁移变更，不要开启
+      synchronize: false,
       logging: false,
       cache: true,
       entities: ['**/modules/*/entity'],
@@ -130,6 +130,23 @@ PostgreSQL 注意事项：
 
 - 表名、列名保持驼峰（如 `"departmentId"`）。用 QueryBuilder 写 `a.departmentId` 时 TypeORM 会自动加引号；`nativeQuery` / `sqlRenderPage` 中 `别名.列名` 的写法由框架自动加引号，其它位置的驼峰列名要自己写成 `"列名"`。
 - `LIKE` 区分大小写，需要不区分时用 `ILIKE`。
+
+## 表结构变更（迁移）
+
+本地和生产都关闭 `synchronize`，表结构只通过 `server/src/migration/` 下的迁移文件变更。后端启动前（`pnpm dev`、`pnpm start`）会自动执行未执行过的迁移，执行记录在 `migrations` 表。
+
+改实体的流程（在 `server/` 下执行）：
+
+1. 修改或新增实体。
+2. `pnpm migration:generate src/migration/add_goods`：对比实体和本地库，生成 `src/migration/<时间戳>-add_goods.ts`。没有差异时会提示 `No changes`。
+3. 检查生成的 SQL，确认没有误删列、误删表；重命名字段会被生成成"删列 + 加列"，会丢数据，需要手动改成 `RENAME COLUMN`。
+4. 重启后端，迁移自动执行；迁移文件和实体改动一起提交。
+5. 本地想撤销最近一次迁移：`pnpm migration:revert`，再删除对应的迁移文件。
+
+注意：
+- 已经提交或上线的迁移文件不要修改，有问题就再生成一个新的迁移来修正。
+- 迁移只管理 `default` 数据源。C 端实体都标了 `@Entity('表名', { synchronize: false })`，不会进入迁移（见 `integration.md`）。
+- 初始数据仍由各模块的 `db.json` 导入，不写进迁移。
 
 切换到其它数据库：
 

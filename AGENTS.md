@@ -22,7 +22,7 @@ pnpm dev:admin        # 只启动管理端
 pnpm build            # 构建前后端
 ```
 
-本地开发需要一个 PostgreSQL（默认 `127.0.0.1:5432`，库名 `cool`，账号 `postgres/123456`，见 `server/src/config/config.local.ts`）。库建好后启动后端会自动建表并导入初始数据，管理端默认账号 `admin / 123456`。
+本地开发需要一个 PostgreSQL（默认 `127.0.0.1:5432`，库名 `cool`，账号 `postgres/123456`，见 `server/src/config/config.local.ts`）。库建好后启动后端会先执行迁移建表，再导入初始数据，管理端默认账号 `admin / 123456`。
 
 ## 前后端是怎么连起来的
 
@@ -34,7 +34,7 @@ pnpm build            # 构建前后端
 所以**新增一个业务功能的标准流程**是：
 
 1. 后端：在 `server/src/modules/<模块>/` 下写 entity → service（可选）→ controller，详见 `docs/server/module.md`。
-2. 重启后端，确认新表已建好、接口可访问。
+2. 生成迁移：`pnpm --filter server migration:generate src/migration/<名称>`，然后重启后端（启动前会自动执行迁移），确认新表已建好、接口可访问。详见 `docs/server/entity.md`「表结构变更」。
 3. 管理端：在 `admin/src/modules/<模块>/views/` 下写页面，详见 `docs/admin/crud-page.md`。
 4. 在后端模块的 `menu.json` 中添加菜单和权限点（详见 `docs/server/module.md`），重启后端；再到后台「角色列表」给角色勾选权限。
 

@@ -18,7 +18,7 @@ export default (): MidwayConfig => ({
         username: requireEnv('DB_USERNAME'),
         password: requireEnv('DB_PASSWORD'),
         database: requireEnv('DB_DATABASE'),
-        // 自动建表 注意：线上部署的时候不要使用，有可能导致数据丢失
+        // 表结构只通过迁移（src/migration）变更，启动前由 migration:run 执行
         synchronize: false,
         // 打印日志
         logging: false,
@@ -34,8 +34,8 @@ export default (): MidwayConfig => ({
   cool: {
     // 实体与路径，跟生成代码、前端请求、swagger文档相关 注意：线上不建议开启，以免暴露敏感信息
     eps: false,
-    // 是否自动导入模块数据库
-    initDB: false,
+    // 首次启动时导入各模块 db.json 的初始数据（已导入过的模块会跳过）
+    initDB: true,
     // 判断是否初始化的方式
     initJudge: 'db',
     // 关闭框架自带的一次性菜单导入，菜单由 base 模块在每次启动时按 key 同步（service/sys/menu_sync.ts）

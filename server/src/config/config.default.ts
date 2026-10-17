@@ -5,13 +5,14 @@ import * as path from 'path';
 import { pCachePath, pUploadPath } from '../comm/path';
 import { availablePort } from '../comm/port';
 import { PLUGIN_EXTENSIONS, UPLOAD_EXTENSIONS } from '../comm/upload';
+import { isLocalEnv, requireEnv } from '../comm/env';
 
 // redis缓存
 // import { redisStore } from 'cache-manager-ioredis-yet';
 
 export default {
-  // 确保每个项目唯一，项目首次启动会自动生成
-  keys: 'cool-admin-keys-xxxxxx',
+  // cookie 签名密钥：本地开发使用固定值，其它环境必须通过环境变量 APP_KEYS 提供
+  keys: isLocalEnv() ? 'cool-admin-local-keys' : requireEnv('APP_KEYS'),
   koa: {
     port: availablePort(8001),
   },

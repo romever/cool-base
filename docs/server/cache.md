@@ -1,6 +1,6 @@
 # 缓存
 
-基于 `@midwayjs/cache-manager`。默认使用框架自带的本地文件缓存（`CoolCacheStore`），单机开发不需要 Redis。缓存和上传文件都存在 `~/.cool-admin/<md5(keys)>/` 下（见 `server/src/comm/path.ts`，`keys` 是 `config.default.ts` 里的配置）。
+基于 `@midwayjs/cache-manager`。默认使用框架自带的本地文件缓存（`CoolCacheStore`），单机开发不需要 Redis。缓存、上传文件、插件文件都存在启动目录下的 `data/`（即 `server/data/`，已加入 `.gitignore`，见 `server/src/comm/path.ts`）。容器部署时要把这个目录挂载出来。
 
 ## 使用
 

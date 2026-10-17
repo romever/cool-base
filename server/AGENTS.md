@@ -11,8 +11,10 @@ server/
 │   ├── config/
 │   │   ├── config.default.ts 所有环境生效
 │   │   ├── config.local.ts   本地开发（pnpm dev）
-│   │   └── config.prod.ts    生产（pnpm start）
+│   │   ├── config.prod.ts    生产（pnpm start）
+│   │   └── datasource.ts     迁移命令（pnpm migration:*）使用的数据源
 │   ├── configuration.ts      Midway 组件注册
+│   ├── migration/            数据库迁移文件，由 migration:generate 生成
 │   └── modules/<模块>/       业务模块，结构见 docs/server/module.md
 ├── public/                   静态资源、上传文件
 ├── .vscode/*.code-snippets   代码片段（controller、entity、service 等关键字）
@@ -29,6 +31,7 @@ server/
 - 必须继承 `src/modules/base/entity/base.ts` 的 `BaseEntity`（自带 `id`、`createTime`、`updateTime`、`tenantId`），不要再从 `@cool-midway/core` 导入。导入路径按文件所在层级写相对路径：`modules/<模块>/entity/xxx.ts` 中是 `../../base/entity/base`。
 - 禁止使用 `@ManyToOne`、`@OneToMany`、`@ManyToMany` 等外键关系，关联靠 `xxxId` 字段加查询时 join。
 - 表名格式为 `模块_表`，类名格式为 `模块 + 表 + Entity`，例如 `@Entity('shop_goods')` 对应 `ShopGoodsEntity`。
+- 表结构只通过迁移变更：改了实体就执行 `pnpm migration:generate src/migration/<名称>`，生成的迁移文件和实体一起提交。不要开启 `synchronize`，已提交的迁移不要再修改（见 `docs/server/entity.md`「表结构变更」）。
 - 字段用驼峰命名，例如 `studentNo`。枚举、状态字段用 `dict` 声明可选项，不要只写在 comment 里（见 `docs/server/entity.md`）。
 
 **Controller**

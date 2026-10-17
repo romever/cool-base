@@ -1,29 +1,12 @@
 import * as path from 'path';
-import * as os from 'os';
-import { createHash } from 'crypto';
 import * as fs from 'fs';
 
 /**
- * 获得配置文件中的 keys
- * @returns
- */
-const getKeys = () => {
-  const configFile = path.join(__dirname, '../config/config.default.js');
-  const configContent = fs.readFileSync(configFile, 'utf8');
-  const keys = configContent.match(/keys: '([^']+)'/)?.[1];
-  return keys;
-};
-
-/**
- * 项目数据目录
+ * 项目数据目录：启动目录（server/）下的 data，与 Midway 的 appDir 一致
  * @returns
  */
 export const pDataPath = () => {
-  const dirPath = path.join(
-    os.homedir(),
-    '.cool-admin',
-    createHash('md5').update(getKeys()).digest('hex')
-  );
+  const dirPath = path.join(process.cwd(), 'data');
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }

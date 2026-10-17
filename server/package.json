@@ -44,14 +44,19 @@
     "mwtsc": "^1.15.1",
     "rimraf": "^6.0.1",
     "ts-jest": "^29.3.0",
+    "ts-node": "^10.9.2",
     "typescript": "~5.8.2"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
-    "start": "NODE_ENV=production node ./bootstrap.js",
-    "dev": "rimraf src/index.ts && cool check && cross-env NODE_ENV=local mwtsc --cleanOutDir --watch --run @midwayjs/mock/app.js --keepalive",
+    "start": "npm run migration:deploy && NODE_ENV=production node ./bootstrap.js",
+    "dev": "rimraf src/index.ts && npm run migration:run && cross-env NODE_ENV=local mwtsc --cleanOutDir --watch --run @midwayjs/mock/app.js --keepalive",
+    "migration:generate": "cross-env NODE_ENV=local typeorm-ts-node-commonjs -d src/config/datasource.ts migration:generate",
+    "migration:revert": "cross-env NODE_ENV=local typeorm-ts-node-commonjs -d src/config/datasource.ts migration:revert",
+    "migration:run": "cross-env NODE_ENV=local typeorm-ts-node-commonjs -d src/config/datasource.ts migration:run",
+    "migration:deploy": "NODE_ENV=production typeorm -d dist/config/datasource.js migration:run",
     "test": "cross-env NODE_ENV=unittest jest",
     "cov": "jest --coverage",
     "lint": "mwts check",
@@ -60,7 +65,7 @@
     "build": "cool entity && bundle && mwtsc --cleanOutDir",
     "build:obfuscate": "cool entity && bundle && mwtsc --cleanOutDir && cool obfuscate",
     "pkg": "rimraf build && mkdir build && npm run build && pkg . -d > build/pkg.log",
-    "pm2:start": "pm2 start ./bootstrap.js -i 1 --name cool-admin",
+    "pm2:start": "npm run migration:deploy && pm2 start ./bootstrap.js -i 1 --name cool-admin",
     "pm2:stop": "pm2 stop cool-admin & pm2 delete cool-admin"
   },
   "bin": "./bootstrap.js",

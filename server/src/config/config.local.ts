@@ -15,8 +15,8 @@ export default {
         username: 'postgres',
         password: '123456',
         database: 'cool',
-        // 自动建表 注意：线上部署的时候不要使用，有可能导致数据丢失
-        synchronize: true,
+        // 表结构只通过迁移（src/migration）变更，启动前由 migration:run 执行
+        synchronize: false,
         // 打印日志
         logging: false,
         // 是否开启缓存

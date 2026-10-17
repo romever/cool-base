@@ -33,15 +33,12 @@ pnpm dev
 
 3. 打开 <http://localhost:9000>，账号 `admin`，密码 `123456`。
 
-首次启动后端会自动建表、导入初始数据和菜单。
+启动后端时会先执行数据库迁移建表，再导入初始数据和菜单。
 
 ## 基于本框架开新项目
 
 1. 复制本仓库（不要带 `.git`），重新 `git init`。
-2. 首次 `pnpm dev` 时，`cool check` 会自动把下面两个默认值替换成随机值，替换后的文件要提交到新项目里。本模板仓库自身保持默认值，不要把替换后的值提交回模板：
-   - `server/src/config/config.default.ts` 的 `keys`（同时决定本地数据目录 `~/.cool-admin/<md5(keys)>/`）
-   - `server/src/modules/base/config.ts` 的 `jwt.secret`（后台 token 密钥）
-3. 按需修改：
+2. 按需修改：
 
 | 位置 | 内容 |
 | --- | --- |
@@ -53,6 +50,18 @@ pnpm dev
 ## 开发
 
 新增业务功能的流程和规范见 [AGENTS.md](AGENTS.md)，详细规则在 [docs/](docs/)。
+
+## 部署
+
+后端生产环境必须提供以下环境变量，缺少任意一个都会启动失败：
+
+| 变量 | 说明 |
+| --- | --- |
+| `JWT_SECRET` | 后台 token 签名密钥，32 位以上随机串，上线后不要更换 |
+| `APP_KEYS` | cookie 签名密钥，随机串 |
+| `DB_HOST` / `DB_PORT` / `DB_USERNAME` / `DB_PASSWORD` / `DB_DATABASE` | PostgreSQL 连接信息 |
+
+在 `server/` 下执行 `pnpm build` 后，用 `pnpm start` 启动：会先执行未执行过的数据库迁移，再启动服务；首次启动时自动导入初始数据。运行时数据（缓存、上传文件、插件）在 `server/data/`，容器部署时要挂载出来。
 
 ## 许可
 
