@@ -29,14 +29,14 @@ pnpm build            # 构建前后端
 1. 后端每个模块的 Controller 按目录自动生成路由，例如 `server/src/modules/shop/controller/admin/goods.ts` 对应 `/admin/shop/goods/*`。
 2. 后端开启 `eps` 后，会把所有接口和实体结构暴露给前端。
 3. 管理端启动时 `@cool-vue/vite-plugin` 拉取 eps，生成 `admin/build/cool/eps.d.ts`，于是前端可以直接调用 `service.shop.goods.page()`，并带有类型提示。
-4. 菜单、权限存在数据库里。菜单的 `viewPath` 指向管理端的 `.vue` 文件，例如 `modules/shop/views/goods.vue`。
+4. 菜单和权限点定义在各模块的 `menu.json` 中，启动时按 `key` 同步到数据库；数据库里只维护角色勾选了哪些权限。菜单的 `viewPath` 指向管理端的 `.vue` 文件，例如 `modules/shop/views/goods.vue`。
 
 所以**新增一个业务功能的标准流程**是：
 
 1. 后端：在 `server/src/modules/<模块>/` 下写 entity → service（可选）→ controller，详见 `docs/server/module.md`。
 2. 重启后端，确认新表已建好、接口可访问。
 3. 管理端：在 `admin/src/modules/<模块>/views/` 下写页面，详见 `docs/admin/crud-page.md`。
-4. 在管理后台「系统管理 / 菜单列表」中添加菜单并配置权限；需要随代码分发菜单时，导出到后端模块的 `menu.json`。
+4. 在后端模块的 `menu.json` 中添加菜单和权限点（详见 `docs/server/module.md`），重启后端；再到后台「角色列表」给角色勾选权限。
 
 ## 全局约定
 
@@ -52,7 +52,7 @@ pnpm build            # 构建前后端
 
 | 任务 | 文档 |
 | --- | --- |
-| 新建后端模块、模块配置、初始化数据和菜单 | `docs/server/module.md` |
+| 新建后端模块、模块配置、初始化数据、菜单与权限点（menu.json） | `docs/server/module.md` |
 | 写接口、CRUD 配置、关联查询、路由规则 | `docs/server/controller.md` |
 | 定义实体、字段类型、可选项、数据库配置、事务 | `docs/server/entity.md` |
 | 写业务逻辑、重写 CRUD、原生 SQL、抛异常 | `docs/server/service.md` |

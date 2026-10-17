@@ -96,7 +96,7 @@ const Upsert = useUpsert<Eps.ShopGoodsEntity>({
 </script>
 ```
 
-做完后到后台「系统管理 / 菜单列表」新增菜单：节点路由 `/shop/goods`，文件路径 `modules/shop/views/goods.vue`，并给它添加对应的权限。
+做完后在后端 `shop` 模块的 `menu.json` 中添加菜单节点（`router: /shop/goods`、`viewPath: modules/shop/views/goods.vue`）和对应的权限点，重启后端，再到后台给角色勾选权限。
 
 ## 常见需求速查
 

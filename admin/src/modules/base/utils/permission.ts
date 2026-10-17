@@ -5,7 +5,8 @@ function parse(value: any) {
 	const { menu } = useStore();
 
 	if (typeof value == 'string') {
-		return value ? menu.perms.some((e: any) => e.includes(value.replace(/\s/g, ''))) : false;
+		// 精确匹配，与后端校验一致
+		return value ? menu.perms.includes(value.replace(/\s/g, '')) : false;
 	} else {
 		return Boolean(value);
 	}

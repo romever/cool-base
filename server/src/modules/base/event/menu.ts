@@ -1,50 +1,28 @@
-import { CoolEvent, CoolEventManager, Event } from '@cool-midway/core';
-import { BaseSysMenuService } from '../service/sys/menu';
-import {
-  App,
-  ILogger,
-  IMidwayApplication,
-  Inject,
-  Logger,
-} from '@midwayjs/core';
+import { CoolEvent, Event } from '@cool-midway/core';
+import { Inject } from '@midwayjs/core';
 import { BaseTranslateService } from '../service/translate';
+import { BaseSysMenuSyncService } from '../service/sys/menu_sync';
 
 /**
- * 导入菜单
+ * 菜单
  */
 @CoolEvent()
 export class BaseMenuEvent {
-  @Logger()
-  coreLogger: ILogger;
-
   @Inject()
-  baseSysMenuService: BaseSysMenuService;
-
-  @App()
-  app: IMidwayApplication;
-
-  @Inject()
-  coolEventManager: CoolEventManager;
+  baseSysMenuSyncService: BaseSysMenuSyncService;
 
   @Inject()
   baseTranslateService: BaseTranslateService;
 
-  @Event('onMenuImport')
-  async onMenuImport(datas) {
-    for (const module in datas) {
-      await this.baseSysMenuService.import(datas[module]);
-      this.coreLogger.info(
-        '\x1B[36m [cool:module:base] midwayjs cool module base import [' +
-          module +
-          '] module menu success \x1B[0m'
-      );
-    }
-    this.coolEventManager.emit('onMenuInit', {});
-    this.baseTranslateService.check();
-  }
-
+  /**
+   * 服务启动后，把各模块 menu.json 同步到数据库
+   * 菜单定义有误时直接抛出，让启动失败
+   */
   @Event('onServerReady')
   async onServerReady() {
+    await this.baseSysMenuSyncService.sync();
+    // 菜单翻译依赖同步后的菜单数据
+    await this.baseTranslateService.check();
     this.baseTranslateService.loadTranslations();
   }
 }

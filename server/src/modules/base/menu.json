@@ -1,5 +1,6 @@
 [
     {
+        "key": "sys",
         "name": "系统管理",
         "router": "/sys",
         "perms": null,
@@ -11,6 +12,7 @@
         "isShow": true,
         "childMenus": [
             {
+                "key": "sys.perm",
                 "name": "权限管理",
                 "router": null,
                 "perms": null,
@@ -22,6 +24,7 @@
                 "isShow": true,
                 "childMenus": [
                     {
+                        "key": "sys.perm.menu",
                         "name": "菜单列表",
                         "router": "/sys/menu",
                         "perms": null,
@@ -33,6 +36,7 @@
                         "isShow": true,
                         "childMenus": [
                             {
+                                "key": "sys.perm.menu.add",
                                 "name": "新增",
                                 "router": null,
                                 "perms": "base:sys:menu:add",
@@ -45,6 +49,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.menu.delete",
                                 "name": "删除",
                                 "router": null,
                                 "perms": "base:sys:menu:delete",
@@ -57,6 +62,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.menu.query",
                                 "name": "查询",
                                 "router": null,
                                 "perms": "base:sys:menu:page,base:sys:menu:list,base:sys:menu:info",
@@ -69,6 +75,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.menu.param",
                                 "name": "参数",
                                 "router": "/test/aa",
                                 "perms": null,
@@ -81,6 +88,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.menu.edit",
                                 "name": "编辑",
                                 "router": null,
                                 "perms": "base:sys:menu:info,base:sys:menu:update",
@@ -95,6 +103,7 @@
                         ]
                     },
                     {
+                        "key": "sys.perm.role",
                         "name": "角色列表",
                         "router": "/sys/role",
                         "perms": null,
@@ -106,6 +115,7 @@
                         "isShow": true,
                         "childMenus": [
                             {
+                                "key": "sys.perm.role.add",
                                 "name": "新增",
                                 "router": null,
                                 "perms": "base:sys:role:add",
@@ -118,6 +128,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.role.delete",
                                 "name": "删除",
                                 "router": null,
                                 "perms": "base:sys:role:delete",
@@ -130,6 +141,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.role.edit",
                                 "name": "修改",
                                 "router": null,
                                 "perms": "base:sys:role:update",
@@ -142,6 +154,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.role.query",
                                 "name": "查询",
                                 "router": null,
                                 "perms": "base:sys:role:page,base:sys:role:list,base:sys:role:info",
@@ -156,6 +169,7 @@
                         ]
                     },
                     {
+                        "key": "sys.perm.user",
                         "name": "用户列表",
                         "router": "/sys/user",
                         "perms": null,
@@ -167,6 +181,7 @@
                         "isShow": true,
                         "childMenus": [
                             {
+                                "key": "sys.perm.user.dept.query",
                                 "name": "部门列表",
                                 "router": null,
                                 "perms": "base:sys:department:list",
@@ -179,6 +194,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.user.dept.add",
                                 "name": "新增部门",
                                 "router": null,
                                 "perms": "base:sys:department:add",
@@ -191,6 +207,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.user.dept.edit",
                                 "name": "更新部门",
                                 "router": null,
                                 "perms": "base:sys:department:update",
@@ -203,6 +220,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.user.dept.delete",
                                 "name": "删除部门",
                                 "router": null,
                                 "perms": "base:sys:department:delete",
@@ -215,6 +233,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.user.dept.order",
                                 "name": "部门排序",
                                 "router": null,
                                 "perms": "base:sys:department:order",
@@ -227,6 +246,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.user.move",
                                 "name": "用户转移",
                                 "router": null,
                                 "perms": "base:sys:user:move",
@@ -239,6 +259,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.user.add",
                                 "name": "新增",
                                 "router": null,
                                 "perms": "base:sys:user:add",
@@ -251,6 +272,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.user.delete",
                                 "name": "删除",
                                 "router": null,
                                 "perms": "base:sys:user:delete",
@@ -263,6 +285,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.user.edit",
                                 "name": "修改",
                                 "router": null,
                                 "perms": "base:sys:user:delete,base:sys:user:update",
@@ -275,6 +298,7 @@
                                 "childMenus": []
                             },
                             {
+                                "key": "sys.perm.user.query",
                                 "name": "查询",
                                 "router": null,
                                 "perms": "base:sys:user:page,base:sys:user:list,base:sys:user:info",
@@ -291,6 +315,7 @@
                 ]
             },
             {
+                "key": "sys.monitor",
                 "name": "监控管理",
                 "router": null,
                 "perms": null,
@@ -302,6 +327,7 @@
                 "isShow": true,
                 "childMenus": [
                     {
+                        "key": "sys.monitor.log",
                         "name": "请求日志",
                         "router": "/sys/log",
                         "perms": null,
@@ -313,6 +339,7 @@
                         "isShow": true,
                         "childMenus": [
                             {
+                                "key": "sys.monitor.log.all",
                                 "name": "权限",
                                 "router": null,
                                 "perms": "base:sys:log:page,base:sys:log:clear,base:sys:log:getKeep,base:sys:log:setKeep",
@@ -331,6 +358,7 @@
         ]
     },
     {
+        "key": "tutorial",
         "name": "框架教程",
         "router": "/tutorial",
         "perms": null,
@@ -342,6 +370,7 @@
         "isShow": true,
         "childMenus": [
             {
+                "key": "tutorial.doc",
                 "name": "文档官网",
                 "router": "/tutorial/doc",
                 "perms": null,
@@ -356,6 +385,7 @@
         ]
     },
     {
+        "key": "common",
         "name": "通用",
         "router": null,
         "perms": null,
@@ -367,6 +397,7 @@
         "isShow": false,
         "childMenus": [
             {
+                "key": "common.upload",
                 "name": "图片上传",
                 "router": null,
                 "perms": "space:info:page,space:info:list,space:info:info,space:info:add,space:info:delete,space:info:update,space:type:page,space:type:list,space:type:info,space:type:add,space:type:delete,space:type:update",
@@ -381,6 +412,7 @@
         ]
     },
     {
+        "key": "home",
         "name": "首页",
         "router": "/",
         "perms": null,
@@ -393,6 +425,7 @@
         "childMenus": []
     },
     {
+        "key": "data",
         "name": "数据管理",
         "router": null,
         "perms": null,
@@ -404,6 +437,7 @@
         "isShow": true,
         "childMenus": [
             {
+                "key": "data.space",
                 "name": "文件管理",
                 "router": "/upload/list",
                 "perms": null,
@@ -415,6 +449,7 @@
                 "isShow": true,
                 "childMenus": [
                     {
+                        "key": "data.space.all",
                         "name": "权限",
                         "router": null,
                         "perms": "space:type:delete,space:type:update,space:type:info,space:type:list,space:type:page,space:type:add,space:info:getConfig,space:info:delete,space:info:update,space:info:info,space:info:list,space:info:page,space:info:add",
@@ -431,6 +466,7 @@
         ]
     },
     {
+        "key": "ext",
         "name": "扩展管理",
         "router": null,
         "perms": null,
@@ -442,6 +478,7 @@
         "isShow": true,
         "childMenus": [
             {
+                "key": "ext.plugin",
                 "tenantId": null,
                 "name": "插件列表",
                 "router": "/helper/plugins",
@@ -454,6 +491,7 @@
                 "isShow": true,
                 "childMenus": [
                     {
+                        "key": "ext.plugin.delete",
                         "tenantId": null,
                         "name": "删除",
                         "router": null,
@@ -467,6 +505,7 @@
                         "childMenus": []
                     },
                     {
+                        "key": "ext.plugin.page",
                         "tenantId": null,
                         "name": "分页查询",
                         "router": null,
@@ -480,6 +519,7 @@
                         "childMenus": []
                     },
                     {
+                        "key": "ext.plugin.info",
                         "tenantId": null,
                         "name": "单个信息",
                         "router": null,
@@ -493,6 +533,7 @@
                         "childMenus": []
                     },
                     {
+                        "key": "ext.plugin.install",
                         "tenantId": null,
                         "name": "安装插件",
                         "router": null,
@@ -506,6 +547,7 @@
                         "childMenus": []
                     },
                     {
+                        "key": "ext.plugin.update",
                         "tenantId": null,
                         "name": "修改",
                         "router": null,
@@ -519,6 +561,7 @@
                         "childMenus": []
                     },
                     {
+                        "key": "ext.plugin.list",
                         "tenantId": null,
                         "name": "列表查询",
                         "router": null,
@@ -532,6 +575,7 @@
                         "childMenus": []
                     },
                     {
+                        "key": "ext.plugin.add",
                         "tenantId": null,
                         "name": "新增",
                         "router": null,

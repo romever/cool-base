@@ -43,6 +43,10 @@ server/
 - 数据库操作用 TypeORM API。统计类等确实复杂的查询，才用 `nativeQuery` / `sqlRenderPage`，参数一律走占位符，禁止拼接 SQL。
 - 业务错误直接 `throw new CoolCommException('提示信息')`，不要吞掉异常。
 
+**菜单与权限**
+- 新增页面或后台接口时，必须同步修改所在模块的 `menu.json`：页面对应菜单节点，接口加入对应权限点的 `perms`。每个节点都要有全局唯一的 `key`，上线后不要改 key（见 `docs/server/module.md`）。
+- 不要在后台界面里修改代码定义的菜单，也不要直接改 `base_sys_menu` 表，下次启动会被 `menu.json` 覆盖。
+
 **命名**
 - 文件名用下划线，并且不要重复模块名：`shop` 模块下的商品写 `goods.ts`，不要写 `shop_goods.ts`；多个单词时写 `goods_sku.ts`。
 

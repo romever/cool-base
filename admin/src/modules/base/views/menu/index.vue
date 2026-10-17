@@ -15,9 +15,6 @@
 
 			<cl-flex1 />
 
-			<!-- 导入 -->
-			<menu-imp />
-
 			<!-- 导出 -->
 			<menu-exp :data="Table?.data" />
 		</cl-row>
@@ -29,11 +26,22 @@
 					<cl-svg :name="scope.row.icon" :size="16" />
 				</template>
 
+				<!-- 来源：代码定义的菜单只读 -->
+				<template #column-key="{ scope }">
+					<el-tooltip v-if="scope.row.key" :content="scope.row.key" placement="top">
+						<el-tag size="small" disable-transitions>{{ $t('代码') }}</el-tag>
+					</el-tooltip>
+					<el-tag v-else size="small" type="info" disable-transitions>{{
+						$t('手动')
+					}}</el-tag>
+				</template>
+
 				<!-- 是否显示 -->
 				<template #column-isShow="{ scope }">
 					<cl-switch
 						v-if="scope.row.type != 2"
 						v-model="scope.row.isShow"
+						:disabled="!!scope.row.key"
 						:scope="scope.row"
 						:column="scope.column"
 					/>
@@ -46,6 +54,7 @@
 					<cl-switch
 						v-if="scope.row.type == 1"
 						v-model="scope.row.keepAlive"
+						:disabled="!!scope.row.key"
 						:scope="scope.row"
 						:column="scope.column"
 					/>
@@ -91,7 +100,6 @@ import { useStore } from '/$/base/store';
 import { reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { Plugins } from '/#/crud';
-import MenuImp from './components/imp.vue';
 import MenuExp from './components/exp.vue';
 import AutoMenu from '/$/helper/components/auto-menu.vue';
 import AutoPerms from '/$/helper/components/auto-perms.vue';
@@ -133,8 +141,26 @@ const Table = useTable({
 				}
 			};
 		},
-		'update',
-		'delete',
+		row => {
+			return {
+				label: t('编辑'),
+				hidden: !!row.key,
+				callback(done) {
+					Crud.value?.rowEdit(row);
+					done();
+				}
+			};
+		},
+		row => {
+			return {
+				label: t('删除'),
+				hidden: !!row.key,
+				callback(done) {
+					Crud.value?.rowDelete(row);
+					done();
+				}
+			};
+		},
 		row => {
 			return {
 				label: t('权限'),
@@ -148,7 +174,9 @@ const Table = useTable({
 	],
 	columns: [
 		{
-			type: 'selection'
+			type: 'selection',
+			// 代码定义的菜单不能删除
+			selectable: (row: Eps.BaseSysMenuEntity) => !row.key
 		},
 		{
 			prop: 'name',
@@ -156,6 +184,11 @@ const Table = useTable({
 			align: 'left',
 			width: 200,
 			fixed: 'left'
+		},
+		{
+			prop: 'key',
+			label: t('来源'),
+			width: 90
 		},
 		{
 			prop: 'isShow',
@@ -224,8 +257,8 @@ const Table = useTable({
 							append(scope.row);
 						}
 					},
-					'edit',
-					'delete'
+					// 代码定义的菜单只能修改 menu.json
+					...(scope.row.key ? [] : ['edit', 'delete'])
 				];
 			}
 		}

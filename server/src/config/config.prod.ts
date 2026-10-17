@@ -38,7 +38,7 @@ export default {
     initDB: false,
     // 判断是否初始化的方式
     initJudge: 'db',
-    // 是否自动导入模块菜单
+    // 关闭框架自带的一次性菜单导入，菜单由 base 模块在每次启动时按 key 同步（service/sys/menu_sync.ts）
     initMenu: false,
   } as CoolConfig,
 } as MidwayConfig;

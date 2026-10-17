@@ -95,6 +95,11 @@ declare namespace Eps {
 		id?: number;
 
 		/**
+		 * 稳定标识
+		 */
+		key?: string;
+
+		/**
 		 * 父菜单ID
 		 */
 		parentId?: number;
@@ -749,11 +754,6 @@ declare namespace Eps {
 		export(data?: any): Promise<any>;
 
 		/**
-		 * 导入
-		 */
-		import(data?: any): Promise<any>;
-
-		/**
 		 * 删除
 		 */
 		delete(data?: any): Promise<any>;
@@ -794,7 +794,6 @@ declare namespace Eps {
 		permission: {
 			create: string;
 			export: string;
-			import: string;
 			delete: string;
 			update: string;
 			parse: string;
@@ -810,7 +809,6 @@ declare namespace Eps {
 		_permission: {
 			create: boolean;
 			export: boolean;
-			import: boolean;
 			delete: boolean;
 			update: boolean;
 			parse: boolean;

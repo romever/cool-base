@@ -24,7 +24,7 @@ modules/shop/
 
 `views`、`pages` 下的页面不会自动注册路由，有两种注册方式：
 
-1. **通过菜单注册（推荐）**：在后台「系统管理 / 菜单列表」中新增菜单，`节点路由` 填 `/shop/goods`，`文件路径` 选 `modules/shop/views/goods.vue`。这种方式受权限控制。
+1. **通过菜单注册（推荐）**：在后端模块的 `menu.json` 中添加菜单节点，`router` 填 `/shop/goods`，`viewPath` 填 `modules/shop/views/goods.vue`（见 `docs/server/module.md`）。这种方式受权限控制。
 2. **在 config.ts 中注册**：用于不需要权限控制的页面，例如详情页、带参数的页面。
 
 ```ts

@@ -36,19 +36,17 @@ export const useMenuStore = defineStore('menu', function () {
 	}
 
 	// 设置权限
-	function setPerms(list: Menu.List) {
+	function setPerms(list: string[]) {
 		function deep(d: any) {
 			if (typeof d == 'object') {
 				if (d.permission) {
 					if (d.namespace) {
 						d._permission = {};
 						for (const i in d.permission) {
-							d._permission[i] =
-								list.findIndex(e =>
-									e
-										.replace(/:/g, '/')
-										.includes(`${d.namespace.replace('admin/', '')}/${i}`)
-								) >= 0;
+							// 精确匹配，与后端校验一致
+							d._permission[i] = list.includes(
+								`${d.namespace.replace('admin/', '')}/${i}`.replace(/\//g, ':')
+							);
 						}
 					} else {
 						console.error('namespace is required', d);

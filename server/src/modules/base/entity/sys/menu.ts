@@ -1,11 +1,16 @@
 import { BaseEntity } from '../base';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 /**
  * 菜单
  */
 @Entity('base_sys_menu')
 export class BaseSysMenuEntity extends BaseEntity {
+  // 有值表示由模块的 menu.json 定义，启动时按它同步；为空表示在后台手动添加
+  @Index({ unique: true })
+  @Column({ comment: '稳定标识', length: 100, nullable: true })
+  key: string;
+
   @Column({ comment: '父菜单ID', nullable: true })
   parentId: number;
 

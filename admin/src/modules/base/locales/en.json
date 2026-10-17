@@ -140,5 +140,8 @@
   "请输入Key": "Please enter Key",
   "类型": "Type",
   "数据": "Data",
-  "欢迎回来": "Welcome back"
+  "欢迎回来": "Welcome back",
+  "来源": "Source",
+  "代码": "Code",
+  "手动": "Manual"
 }

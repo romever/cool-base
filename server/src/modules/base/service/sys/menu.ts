@@ -2,7 +2,7 @@ import { App, IMidwayApplication, Scope, ScopeEnum } from '@midwayjs/core';
 import { ALL, Config, Inject, Provide } from '@midwayjs/core';
 import { BaseService, CoolCommException } from '@cool-midway/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, IsNull, Not, Repository } from 'typeorm';
 import { BaseSysMenuEntity } from '../../entity/sys/menu';
 import * as _ from 'lodash';
 import { BaseSysPermsService } from './perms';
@@ -61,6 +61,24 @@ export class BaseSysMenuService extends BaseService {
       });
     }
     return menus;
+  }
+
+  /**
+   * 新增、修改之前：代码定义的菜单（有 key）只能通过模块的 menu.json 修改
+   */
+  async modifyBefore(data: any, type: 'delete' | 'update' | 'add') {
+    if (type === 'delete') return;
+    if (data.key) {
+      throw new CoolCommException('菜单 key 只能在模块的 menu.json 中定义');
+    }
+    if (type === 'update') {
+      const menu = await this.baseSysMenuEntity.findOneBy({ id: data.id });
+      if (menu?.key) {
+        throw new CoolCommException(
+          `菜单「${menu.name}」由代码定义，请修改对应模块的 menu.json`
+        );
+      }
+    }
   }
 
   /**
@@ -136,6 +154,15 @@ export class BaseSysMenuService extends BaseService {
       idArr = ids;
     } else {
       idArr = ids.split(',');
+    }
+    const codeMenus = await this.baseSysMenuEntity.findBy({
+      id: In(idArr),
+      key: Not(IsNull()),
+    });
+    if (codeMenus.length > 0) {
+      throw new CoolCommException(
+        `菜单「${codeMenus.map(e => e.name).join('、')}」由代码定义，请修改对应模块的 menu.json`
+      );
     }
     for (const id of idArr) {
       await this.baseSysMenuEntity.delete({ id });
@@ -403,6 +430,8 @@ export default () => {
         delete child.createTime;
         delete child.updateTime;
         delete child.parentId;
+        // 手动菜单没有 key，导出为空字符串，放进 menu.json 前需要补全
+        child.key = child.key || '';
       });
       return children;
     };
@@ -420,44 +449,11 @@ export default () => {
       delete parent.createTime;
       delete parent.updateTime;
       delete parent.parentId;
+      parent.key = parent.key || '';
 
       result.push(parent);
     });
 
     return result;
-  }
-
-  /**
-   * 导入
-   * @param menus
-   */
-  async import(menus: any[]) {
-    // 递归保存子菜单
-    const saveChildMenus = async (parentMenu: any, parentId: number | null) => {
-      const children = parentMenu.childMenus || [];
-      for (let child of children) {
-        const childData = { ...child, parentId: parentId }; // 保持与数据库的parentId字段的一致性
-        delete childData.childMenus; // 删除childMenus属性，因为我们不想将它保存到数据库中
-
-        // 保存子菜单并获取其ID，以便为其子菜单设置parentId
-        const savedChild = await this.baseSysMenuEntity.save(childData);
-
-        if (!_.isEmpty(child.childMenus)) {
-          await saveChildMenus(child, savedChild.id);
-        }
-      }
-    };
-
-    for (let menu of menus) {
-      const menuData = { ...menu };
-      delete menuData.childMenus; // 删除childMenus属性，因为我们不想将它保存到数据库中
-
-      // 保存主菜单并获取其ID
-      const savedMenu = await this.baseSysMenuEntity.save(menuData);
-
-      if (menu.childMenus && menu.childMenus.length > 0) {
-        await saveChildMenus(menu, savedMenu.id);
-      }
-    }
   }
 }
