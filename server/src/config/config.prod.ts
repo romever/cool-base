@@ -12,7 +12,7 @@ export default (): MidwayConfig => ({
   typeorm: {
     dataSource: {
       default: {
-        type: 'mysql',
+        type: 'postgres',
         host: requireEnv('DB_HOST'),
         port: Number(requireEnv('DB_PORT')),
         username: requireEnv('DB_USERNAME'),
@@ -22,8 +22,6 @@ export default (): MidwayConfig => ({
         synchronize: false,
         // 打印日志
         logging: false,
-        // 字符集
-        charset: 'utf8mb4',
         // 是否开启缓存
         cache: true,
         // 实体路径

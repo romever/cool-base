@@ -46,9 +46,9 @@ typeorm: {
     },
     // C 端业务 shop，名称与模块名一致
     shop: {
-      type: 'mysql',
+      type: 'postgres',
       host: '127.0.0.1',
-      port: 3306,
+      port: 5432,
       // 单独的、权限受限的数据库账号，只授予后台需要的表和操作
       username: 'admin_shop',
       password: 'xxx',
@@ -56,7 +56,6 @@ typeorm: {
       // C 端维护表结构，后台绝不能同步
       synchronize: false,
       logging: false,
-      charset: 'utf8mb4',
       entities: ['**/modules/shop/entity'],
       // 不挂 TenantSubscriber：C 端的表没有 tenantId 列
     },

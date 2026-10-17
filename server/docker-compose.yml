@@ -7,24 +7,19 @@ version: "3.1"
 
 services:
   coolDB:
-    image: mysql
-    command:
-      --default-authentication-plugin=mysql_native_password
-      --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
-      --group_concat_max_len=102400
+    image: postgres:16
     restart: always
     volumes:
-      - ./data/mysql/:/var/lib/mysql/
+      - ./data/postgres/:/var/lib/postgresql/data/
     environment:
       TZ: Asia/Shanghai # 指定时区
-      MYSQL_ROOT_PASSWORD: "123456" # 配置root用户密码
-      MYSQL_DATABASE: "cool" # 业务库名
-      MYSQL_USER: "root" # 业务库用户名
-      MYSQL_PASSWORD: "123456" # 业务库密码
+      POSTGRES_USER: "postgres" # 用户名
+      POSTGRES_PASSWORD: "123456" # 密码
+      POSTGRES_DB: "cool" # 业务库名
     networks:
       - cool
     ports:
-      - 3306:3306
+      - 5432:5432
 
   coolRedis:
     image: redis

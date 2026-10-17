@@ -70,17 +70,18 @@ export class ShopGoodsEntity extends BaseEntity {
 
 禁止 `@OneToMany`、`@ManyToOne`、`@ManyToMany`、`@OneToOne` 等关系装饰器。外键会带来写入开销、锁竞争，也让分库分表、迁移变得困难。关联统一用 `xxxId` 字段，查询时通过 Controller 的 `join` 配置或 QueryBuilder 关联（见 controller.md、service.md）。
 
-## 虚拟列（MySQL）
+## 生成列
 
-需要按计算结果筛选时，用生成列代替在查询里写函数：
+需要按计算结果筛选时，用生成列代替在查询里写函数。PostgreSQL 只支持 `STORED`，表达式里的驼峰列名要加双引号：
 
 ```ts
+// createTime 是 'YYYY-MM-DD HH:mm:ss' 格式的字符串，取前 7 位即月份
 @Index()
 @Column({
   type: 'varchar',
   length: 7,
-  asExpression: "DATE_FORMAT(createTime, '%Y-%m')",
-  generatedType: 'VIRTUAL',
+  asExpression: `left("createTime", 7)`,
+  generatedType: 'STORED',
   comment: '月份',
 })
 month: string;
@@ -88,8 +89,9 @@ month: string;
 // 从 json 字段中提取值，方便建索引和筛选
 @Index()
 @Column({
-  asExpression: "JSON_EXTRACT(refund, '$.status')",
-  generatedType: 'VIRTUAL',
+  type: 'int',
+  asExpression: `("refund"->>'status')::int`,
+  generatedType: 'STORED',
   comment: '退款状态',
   nullable: true,
 })
@@ -106,16 +108,15 @@ refundStatus: number;
 typeorm: {
   dataSource: {
     default: {
-      type: 'mysql',
+      type: 'postgres',
       host: '127.0.0.1',
-      port: 3306,
-      username: 'root',
+      port: 5432,
+      username: 'postgres',
       password: '123456',
       database: 'cool',
       // 自动同步表结构，只能在本地开启，线上开启可能丢数据
       synchronize: true,
       logging: false,
-      charset: 'utf8mb4',
       cache: true,
       entities: ['**/modules/*/entity'],
       // 多租户订阅者，不要去掉
@@ -125,9 +126,14 @@ typeorm: {
 },
 ```
 
-切换数据库：
+PostgreSQL 注意事项：
 
-- PostgreSQL：`pnpm --filter server add pg`，`type: 'postgres'`，端口 5432。
+- 表名、列名保持驼峰（如 `"departmentId"`）。用 QueryBuilder 写 `a.departmentId` 时 TypeORM 会自动加引号；`nativeQuery` / `sqlRenderPage` 中 `别名.列名` 的写法由框架自动加引号，其它位置的驼峰列名要自己写成 `"列名"`。
+- `LIKE` 区分大小写，需要不区分时用 `ILIKE`。
+
+切换到其它数据库：
+
+- MySQL：`pnpm --filter server add mysql2`，`type: 'mysql'`，端口 3306，加 `charset: 'utf8mb4'`。
 - SQLite：`pnpm --filter server add sqlite3`，`type: 'sqlite'`，`database: path.join(__dirname, '../../cool.sqlite')`。
 
 ## 事务

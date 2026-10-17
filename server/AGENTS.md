@@ -1,6 +1,6 @@
 # server/AGENTS.md
 
-后端：Midway.js 3 + Koa + TypeORM 0.3.20（`@cool-midway/typeorm` 分支）+ `@cool-midway/core` 8.x。支持 MySQL / PostgreSQL / SQLite，默认 MySQL。
+后端：Midway.js 3 + Koa + TypeORM 0.3.20（`@cool-midway/typeorm` 分支）+ `@cool-midway/core` 8.x。支持 PostgreSQL / MySQL / SQLite，默认 PostgreSQL。
 
 ## 目录
 

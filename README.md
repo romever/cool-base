@@ -16,11 +16,11 @@ cool-base/
 
 ## 快速开始
 
-环境：Node.js >= 20、pnpm >= 10、MySQL 5.7+ / 8。
+环境：Node.js >= 20、pnpm >= 10、PostgreSQL 13+。
 
 依赖按子项目分别安装在 `server/node_modules`、`admin/node_modules`（见 `pnpm-workspace.yaml` 中的说明），仍然只需要在根目录执行一次 `pnpm install`。
 
-1. 创建数据库 `cool`（字符集 `utf8mb4`），账号密码按需修改 `server/src/config/config.local.ts`。
+1. 创建数据库 `cool`（`createdb cool`，或用 `server/docker-compose.yml` 启动），账号密码按需修改 `server/src/config/config.local.ts`。
 2. 安装依赖并启动：
 
 ```bash

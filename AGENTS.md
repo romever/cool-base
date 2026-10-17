@@ -22,7 +22,7 @@ pnpm dev:admin        # 只启动管理端
 pnpm build            # 构建前后端
 ```
 
-本地开发需要一个 MySQL（默认 `127.0.0.1:3306`，库名 `cool`，账号 `root/123456`，见 `server/src/config/config.local.ts`）。库建好后启动后端会自动建表并导入初始数据，管理端默认账号 `admin / 123456`。
+本地开发需要一个 PostgreSQL（默认 `127.0.0.1:5432`，库名 `cool`，账号 `postgres/123456`，见 `server/src/config/config.local.ts`）。库建好后启动后端会自动建表并导入初始数据，管理端默认账号 `admin / 123456`。
 
 ## 前后端是怎么连起来的
 
