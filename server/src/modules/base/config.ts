@@ -21,6 +21,11 @@ export default () => {
     ],
     // 模块加载顺序，默认为0，值越大越优先加载
     order: 10,
+    // 登录失败锁定：同一账号在同一 IP 连续失败 maxFail 次后，锁定 lockTime 秒
+    loginLock: {
+      maxFail: 5,
+      lockTime: 15 * 60,
+    },
     // jwt 生成解密token的
     jwt: {
       // 单点登录

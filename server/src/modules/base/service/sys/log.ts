@@ -10,6 +10,11 @@ import { BaseSysConfService } from './conf';
 import { Context } from '@midwayjs/koa';
 
 /**
+ * 写入日志前需要脱敏的字段名（不区分大小写），新增敏感字段时加到这里
+ */
+const SENSITIVE_FIELDS = ['password', 'oldpassword', 'token', 'refreshtoken'];
+
+/**
  * 描述
  */
 @Provide()
@@ -38,8 +43,26 @@ export class BaseSysLogService extends BaseService {
     sysLog.userId = userId;
     sysLog.ip = typeof ip === 'string' ? ip : ip.join(',');
     sysLog.action = url.split('?')[0];
-    sysLog.params = params;
+    sysLog.params = this.maskSensitive(params);
     await this.baseSysLogEntity.insert(sysLog);
+  }
+
+  /**
+   * 递归把敏感字段的值替换为 ***
+   * @param value 请求参数
+   */
+  maskSensitive(value) {
+    if (_.isArray(value)) {
+      return value.map(e => this.maskSensitive(e));
+    }
+    if (_.isPlainObject(value)) {
+      return _.mapValues(value, (v, k) =>
+        SENSITIVE_FIELDS.includes(k.toLowerCase())
+          ? '***'
+          : this.maskSensitive(v)
+      );
+    }
+    return value;
   }
 
   /**

@@ -14,12 +14,15 @@ export class BaseLogMiddleware implements IMiddleware<Context, NextFunction> {
       const baseSysLogService = await ctx.requestContext.getAsync(
         BaseSysLogService
       );
-      baseSysLogService.record(
-        ctx,
-        ctx.url,
-        ctx.req.method === 'GET' ? ctx.request.query : ctx.request.body,
-        ctx.admin ? ctx.admin.userId : null
-      );
+      // 日志异步写入，不阻塞请求；写入失败只记录错误，不影响业务
+      baseSysLogService
+        .record(
+          ctx,
+          ctx.url,
+          ctx.req.method === 'GET' ? ctx.request.query : ctx.request.body,
+          ctx.admin ? ctx.admin.userId : null
+        )
+        .catch(err => ctx.logger.error('记录请求日志失败', err));
       await next();
     };
   }

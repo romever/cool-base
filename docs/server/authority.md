@@ -37,3 +37,10 @@
 密码用 bcrypt 加盐哈希存储（`server/src/comm/password.ts`）。用 refreshToken 换新 token 时会重新读取用户：已禁用或改过密码的用户无法换取。用户被禁用、角色权限变更后，缓存中的 token 会被清除，原 token 立即失效。
 
 中间件每次请求会对比缓存里的 token 和密码版本，修改密码或在开启 `sso`（单点登录）时登录新设备，旧 token 会失效。
+
+同一账号在同一 IP 连续登录失败 5 次后锁定 15 分钟，次数和时长在 `server/src/modules/base/config.ts` 的 `loginLock` 中配置。IP 取自 `ctx.ip`：部署在 Nginx 等反向代理之后时，要在 `config.prod.ts` 中设置 `koa: { proxy: true }`，否则所有请求都会被识别成代理的 IP。
+
+## 其它安全约定
+
+- **请求日志脱敏**：所有后台请求的参数会写入 `base_sys_log`，写入前会把 `password`、`oldPassword`、`token`、`refreshToken` 字段替换为 `***`。新增其它敏感字段时，加到 `server/src/modules/base/service/sys/log.ts` 的 `SENSITIVE_FIELDS` 中。
+- **上传白名单**：只允许 `server/src/comm/upload.ts` 中 `UPLOAD_EXTENSIONS` 列出的扩展名（不含 html、svg、js 等可执行脚本的类型），插件安装接口只允许 `.cool`。需要支持新的文件类型时改这个列表。

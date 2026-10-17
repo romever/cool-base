@@ -55,6 +55,15 @@ export class BaseSysLoginService extends BaseService {
    */
   async login(login: LoginDTO) {
     const { username, captchaId, verifyCode, password } = login;
+    // 校验失败次数，ctx.ip 只在开启 koa.proxy 时才信任代理头，避免伪造 IP 绕过锁定
+    const { maxFail, lockTime } = this.coolConfig.loginLock;
+    const failKey = `admin:login:fail:${username}:${this.ctx.ip}`;
+    const failCount: number = (await this.midwayCache.get(failKey)) || 0;
+    if (failCount >= maxFail) {
+      throw new CoolCommException(
+        `登录失败次数过多，请 ${Math.ceil(lockTime / 60)} 分钟后再试`
+      );
+    }
     // 校验验证码
     const checkV = await this.captchaCheck(captchaId, verifyCode);
     if (!checkV) {
@@ -67,8 +76,10 @@ export class BaseSysLoginService extends BaseService {
       user.status === 0 ||
       !(await verifyPassword(password, user.password))
     ) {
+      await this.midwayCache.set(failKey, failCount + 1, lockTime * 1000);
       throw new CoolCommException('账户或密码不正确~');
     }
+    await this.midwayCache.del(failKey);
     return this.createSession(user);
   }
 

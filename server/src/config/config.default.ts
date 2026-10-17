@@ -4,6 +4,7 @@ import { CoolCacheStore } from '@cool-midway/core';
 import * as path from 'path';
 import { pCachePath, pUploadPath } from '../comm/path';
 import { availablePort } from '../comm/port';
+import { PLUGIN_EXTENSIONS, UPLOAD_EXTENSIONS } from '../comm/upload';
 
 // redis缓存
 // import { redisStore } from 'cache-manager-ioredis-yet';
@@ -35,7 +36,11 @@ export default {
   // 文件上传
   upload: {
     fileSize: '200mb',
-    whitelist: null,
+    // 插件安装接口只接受插件包，其它接口按通用白名单
+    whitelist: ctx =>
+      ctx.path.endsWith('/admin/plugin/info/install')
+        ? PLUGIN_EXTENSIONS
+        : UPLOAD_EXTENSIONS,
   },
   // 缓存 可切换成其他缓存如：redis http://www.midwayjs.org/docs/extensions/caching
   cacheManager: {

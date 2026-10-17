@@ -7,6 +7,7 @@ import { v1 as uuid } from 'uuid';
 import { CoolCommException } from '@cool-midway/core';
 import * as _ from 'lodash';
 import { pUploadPath } from '../../../../comm/path';
+import { isAllowedUploadExt } from '../../../../comm/upload';
 
 /**
  * 文件上传
@@ -176,6 +177,10 @@ export class CoolPlugin extends BasePluginHook implements BaseUpload {
       const extension = originalFileName.split('.').pop();
 
       const finalName = safeKey || `${uuid()}.${extension}`;
+      // 最终文件名可由前端的 key 指定，需要再按白名单校验一次扩展名
+      if (!isAllowedUploadExt(finalName)) {
+        throw new CoolCommException('不支持的文件类型');
+      }
       const name = `${dateDir}/${finalName}`;
       const target = path.join(basePath, name);
 
