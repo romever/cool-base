@@ -18,6 +18,13 @@ import { Utils } from '../../../../comm/utils';
 import * as svgCaptcha from 'svg-captcha';
 
 /**
+ * 已吊销会话的缓存 key（退出登录、刷新 token 后旧会话写入）
+ * @param sid 会话编号
+ */
+export const revokedSessionKey = (sid: string) =>
+  `admin:session:revoked:${sid}`;
+
+/**
  * 登录
  */
 @Provide()
@@ -92,34 +99,37 @@ export class BaseSysLoginService extends BaseService {
     if (_.isEmpty(roleIds)) {
       throw new CoolCommException('该用户未设置任何角色，无法登录~');
     }
-    const isSuperAdmin = await this.baseSysPermsService.isAdmin(roleIds);
+    // sid 标识本次登录会话，同一次登录的 token 和 refreshToken 共用，用于按会话吊销
+    const payload = {
+      sid: uuid(),
+      roleIds,
+      isSuperAdmin: await this.baseSysPermsService.isAdmin(roleIds),
+      username: user.username,
+      userId: user.id,
+      passwordVersion: user.passwordV,
+      tenantId: user['tenantId'],
+    };
 
     const { expire, refreshExpire } = this.coolConfig.jwt.token;
     const result = {
       expire,
-      token: await this.generateToken(user, roleIds, isSuperAdmin, expire),
+      token: this.generateToken(payload, expire),
       refreshExpire,
-      refreshToken: await this.generateToken(
-        user,
-        roleIds,
-        isSuperAdmin,
-        refreshExpire,
-        true
-      ),
+      refreshToken: this.generateToken(payload, refreshExpire, true),
     };
 
     // 将用户相关信息保存到缓存
     const perms = await this.baseSysMenuService.getPerms(roleIds);
     const departments = await this.baseSysDepartmentService.getByRoleIds(
       roleIds,
-      isSuperAdmin
+      payload.isSuperAdmin
     );
     await this.midwayCache.set(`admin:department:${user.id}`, departments);
     await this.midwayCache.set(`admin:perms:${user.id}`, perms);
     await this.midwayCache.set(`admin:token:${user.id}`, result.token);
     await this.midwayCache.set(
-      `admin:token:refresh:${user.id}`,
-      result.refreshToken
+      `admin:passwordVersion:${user.id}`,
+      user.passwordV
     );
 
     return result;
@@ -171,16 +181,23 @@ export class BaseSysLoginService extends BaseService {
   }
 
   /**
-   * 退出登录
+   * 退出登录：吊销当前会话，同一账号在其它设备上的登录不受影响
    */
   async logout() {
-    if (!this.coolConfig.jwt.sso) return;
-    const { userId } = this.ctx.admin;
-    await this.midwayCache.del(`admin:department:${userId}`);
-    await this.midwayCache.del(`admin:perms:${userId}`);
-    await this.midwayCache.del(`admin:token:${userId}`);
-    await this.midwayCache.del(`admin:token:refresh:${userId}`);
-    await this.midwayCache.del(`admin:passwordVersion:${userId}`);
+    await this.revokeSession(this.ctx.admin.sid);
+  }
+
+  /**
+   * 吊销会话，记录保留到 refreshToken 的最长有效期
+   * @param sid 会话编号
+   */
+  async revokeSession(sid: string) {
+    const { refreshExpire } = this.coolConfig.jwt.token;
+    await this.midwayCache.set(
+      revokedSessionKey(sid),
+      true,
+      refreshExpire * 1000
+    );
   }
 
   /**
@@ -200,30 +217,12 @@ export class BaseSysLoginService extends BaseService {
 
   /**
    * 生成token
-   * @param user 用户对象
-   * @param roleIds 角色集合
-   * @param isSuperAdmin 是否超管
-   * @param expire 过期
-   * @param isRefresh 是否是刷新
+   * @param payload token 内容
+   * @param expire 过期时间（秒）
+   * @param isRefresh 是否是刷新token
    */
-  async generateToken(user, roleIds, isSuperAdmin, expire, isRefresh?) {
-    await this.midwayCache.set(
-      `admin:passwordVersion:${user.id}`,
-      user.passwordV
-    );
-    const tokenInfo = {
-      isRefresh: false,
-      roleIds,
-      isSuperAdmin,
-      username: user.username,
-      userId: user.id,
-      passwordVersion: user.passwordV,
-      tenantId: user['tenantId'],
-    };
-    if (isRefresh) {
-      tokenInfo.isRefresh = true;
-    }
-    return jwt.sign(tokenInfo, this.coolConfig.jwt.secret, {
+  generateToken(payload: object, expire: number, isRefresh = false) {
+    return jwt.sign({ ...payload, isRefresh }, this.coolConfig.jwt.secret, {
       expiresIn: expire,
     });
   }
@@ -241,7 +240,10 @@ export class BaseSysLoginService extends BaseService {
       if (!(err instanceof jwt.JsonWebTokenError)) throw err;
       throw new CoolCommException('登录失效~', 401);
     }
-    if (!decoded.isRefresh) {
+    if (
+      !decoded.isRefresh ||
+      (await this.midwayCache.get(revokedSessionKey(decoded.sid)))
+    ) {
       throw new CoolCommException('登录失效~', 401);
     }
     // 重新读取用户：禁用或改过密码后，旧的 refreshToken 不能再换取新 token
@@ -255,6 +257,9 @@ export class BaseSysLoginService extends BaseService {
     ) {
       throw new CoolCommException('登录失效~', 401);
     }
-    return this.createSession(user);
+    // 轮换：换出新会话后吊销旧会话，旧 refreshToken 不能重复使用
+    const result = await this.createSession(user);
+    await this.revokeSession(decoded.sid);
+    return result;
   }
 }

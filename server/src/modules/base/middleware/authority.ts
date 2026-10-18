@@ -11,6 +11,7 @@ import {
 } from '@midwayjs/core';
 import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
 import { Utils } from '../../../comm/utils';
+import { revokedSessionKey } from '../service/sys/login';
 
 /**
  * 权限校验
@@ -79,11 +80,14 @@ export class BaseAuthorityMiddleware
         return;
       }
 
-      // 3. 校验会话：refreshToken 只能用于换取新 token；改密码、禁用、角色变更后会话失效
+      // 3. 校验会话：refreshToken 只能用于换取新 token；退出登录、改密码、禁用、角色变更后会话失效
       if (!ctx.admin) {
         throw new CoolCommException(tokenError || '登录失效~', 401);
       }
-      if (ctx.admin.isRefresh) {
+      if (
+        ctx.admin.isRefresh ||
+        (await this.midwayCache.get(revokedSessionKey(ctx.admin.sid)))
+      ) {
         throw new CoolCommException('登录失效~', 401);
       }
       const { userId } = ctx.admin;

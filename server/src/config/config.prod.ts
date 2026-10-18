@@ -9,6 +9,12 @@ import { requireEnv } from '../comm/env';
  * 写成函数是为了只在生产环境执行，敏感配置从环境变量读取
  */
 export default (): MidwayConfig => ({
+  koa: {
+    // 部署在一层反向代理（Nginx 等）之后：信任代理头，并只取代理追加的最后一个 IP，防止客户端伪造
+    // 没有反向代理、直接对外提供服务时，要去掉这两项
+    proxy: true,
+    maxIpsCount: 1,
+  },
   typeorm: {
     dataSource: {
       default: {

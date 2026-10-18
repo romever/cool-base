@@ -11,8 +11,9 @@ export function requireEnv(name: string): string {
 }
 
 /**
- * 是否本地开发环境（pnpm dev 时 NODE_ENV=local），判断规则与 Midway 一致
+ * 是否开发环境（本地开发 local、测试 test / unittest），环境名的取法和范围与 Midway 一致
  */
-export function isLocalEnv(): boolean {
-  return (process.env.MIDWAY_SERVER_ENV || process.env.NODE_ENV) === 'local';
+export function isDevEnv(): boolean {
+  const env = process.env.MIDWAY_SERVER_ENV || process.env.NODE_ENV;
+  return ['local', 'test', 'unittest'].includes(env);
 }

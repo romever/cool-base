@@ -9,6 +9,7 @@ import { BaseSysRoleMenuEntity } from '../../entity/sys/role_menu';
 import { BaseSysRoleDepartmentEntity } from '../../entity/sys/role_department';
 import { BaseSysPermsService, SUPER_ADMIN_ROLE_LABEL } from './perms';
 import { Brackets } from 'typeorm';
+import { parseIds } from '../../../../comm/ids';
 
 /**
  * 角色
@@ -54,7 +55,9 @@ export class BaseSysRoleService extends BaseService {
    */
   async modifyBefore(data, type: 'delete' | 'update' | 'add') {
     if (type === 'delete') {
-      const roles = await this.baseSysRoleEntity.findBy({ id: In(data) });
+      const roles = await this.baseSysRoleEntity.findBy({
+        id: In(parseIds(data)),
+      });
       if (roles.some(e => e.label === SUPER_ADMIN_ROLE_LABEL)) {
         throw new CoolCommException('超管角色不允许删除');
       }

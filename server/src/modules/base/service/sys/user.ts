@@ -10,6 +10,7 @@ import { BaseSysDepartmentEntity } from '../../entity/sys/department';
 import { CachingFactory, MidwayCache } from '@midwayjs/cache-manager';
 import { BaseSysRoleEntity } from '../../entity/sys/role';
 import { hashPassword, verifyPassword } from '../../../../comm/password';
+import { parseIds } from '../../../../comm/ids';
 
 /**
  * 系统用户
@@ -69,6 +70,7 @@ export class BaseSysUserService extends BaseService {
             )}
             ${this.setSql(
               !this.ctx.admin.isSuperAdmin,
+              // cool 的 PostgreSQL setSql 不支持数组参数与其它参数混用，userId 来自已校验的 token，直接拼接
               `and (a.departmentId in (?) or a.userId = ${userId})`,
               [!_.isEmpty(permsDepartmentArr) ? permsDepartmentArr : [null]]
             )} `;
@@ -96,6 +98,7 @@ export class BaseSysUserService extends BaseService {
    * @param userIds
    */
   async move(departmentId, userIds) {
+    await this.checkNotSuperAdminUsers(userIds, '超管用户不允许修改');
     await this.baseSysUserEntity.update({ id: In(userIds) }, { departmentId });
   }
 
@@ -150,9 +153,18 @@ export class BaseSysUserService extends BaseService {
    */
   async modifyBefore(data, type: 'delete' | 'update' | 'add') {
     if (type !== 'delete') return;
-    for (const userId of data) {
+    await this.checkNotSuperAdminUsers(data, '超管用户不允许删除');
+  }
+
+  /**
+   * 批量操作前校验：列表中不能包含超管用户
+   * @param userIds 用户ID集合
+   * @param message 包含超管时的提示
+   */
+  async checkNotSuperAdminUsers(userIds, message: string) {
+    for (const userId of parseIds(userIds)) {
       if (await this.baseSysPermsService.isAdminUser(userId)) {
-        throw new CoolCommException('超管用户不允许删除');
+        throw new CoolCommException(message);
       }
     }
   }
@@ -214,7 +226,10 @@ export class BaseSysUserService extends BaseService {
       if (!userInfo) {
         throw new CoolCommException('用户不存在');
       }
-      if (!(await verifyPassword(param.oldPassword, userInfo.password))) {
+      if (
+        !param.oldPassword ||
+        !(await verifyPassword(param.oldPassword, userInfo.password))
+      ) {
         throw new CoolCommException('原密码错误');
       }
       param.password = await hashPassword(param.password);

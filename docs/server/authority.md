@@ -36,9 +36,11 @@
 
 密码用 bcrypt 加盐哈希存储（`server/src/comm/password.ts`）。用 refreshToken 换新 token 时会重新读取用户：已禁用或改过密码的用户无法换取。用户被禁用、角色权限变更后，缓存中的 token 会被清除，原 token 立即失效。
 
+每次登录生成一个会话编号 `sid`，写在 token 和 refreshToken 里。退出登录会吊销当前会话（不影响同一账号在其它设备的登录）；用 refreshToken 换新 token 后，旧会话也会被吊销，旧的 refreshToken 不能重复使用。
+
 中间件每次请求会对比缓存里的 token 和密码版本，修改密码或在开启 `sso`（单点登录）时登录新设备，旧 token 会失效。
 
-同一账号在同一 IP 连续登录失败 5 次后锁定 15 分钟，次数和时长在 `server/src/modules/base/config.ts` 的 `loginLock` 中配置。IP 取自 `ctx.ip`：部署在 Nginx 等反向代理之后时，要在 `config.prod.ts` 中设置 `koa: { proxy: true }`，否则所有请求都会被识别成代理的 IP。
+同一账号在同一 IP 连续登录失败 5 次后锁定 15 分钟，次数和时长在 `server/src/modules/base/config.ts` 的 `loginLock` 中配置。IP 取自 `ctx.ip`。`config.prod.ts` 默认按「部署在一层反向代理之后」配置（`koa.proxy: true`、`maxIpsCount: 1`，只信任代理追加的最后一个 IP）；直接对外提供服务、没有反向代理时要去掉这两项，否则客户端可以伪造 `X-Forwarded-For` 绕过锁定。
 
 ## 其它安全约定
 
