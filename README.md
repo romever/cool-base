@@ -60,8 +60,23 @@ pnpm dev
 | `JWT_SECRET` | 后台 token 签名密钥，32 位以上随机串，上线后不要更换 |
 | `APP_KEYS` | cookie 签名密钥，随机串 |
 | `DB_HOST` / `DB_PORT` / `DB_USERNAME` / `DB_PASSWORD` / `DB_DATABASE` | PostgreSQL 连接信息 |
+| `UPLOAD_DOMAIN` | 本地上传文件的访问地址前缀，填浏览器能访问到的后端地址，例如 `https://admin.example.com/api`，上传接口返回 `<UPLOAD_DOMAIN>/upload/...` |
 
 在 `server/` 下执行 `pnpm build` 后，用 `pnpm start` 启动：会先执行未执行过的数据库迁移，再启动服务；首次启动时自动导入初始数据。运行时数据（缓存、上传文件、插件）在 `server/data/`，容器部署时要挂载出来。
+
+### Docker 镜像
+
+两个镜像都要在仓库根目录构建，依赖按各自的 `pnpm-lock.yaml` 安装，lockfile 与 `package.json` 不一致时构建会失败：
+
+```bash
+docker build -f server/Dockerfile -t cool-server .
+```
+
+```bash
+docker build -f admin/Dockerfile -t cool-admin .
+```
+
+后端镜像运行时要传入上面的环境变量，并挂载 `/app/server/data`。管理端镜像是 Nginx，`/api/` 转发到 `admin/nginx.conf` 里 upstream 配置的后端地址（默认 `midway:8001`），部署前按实际改。
 
 ## 许可
 

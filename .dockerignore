@@ -1,0 +1,10 @@
+# 镜像构建上下文为仓库根目录，排除依赖、构建产物和运行时数据
+**/node_modules
+**/dist
+**/logs
+.git
+server/data
+server/cache
+server/run
+server/build
+server/src/index.ts

@@ -40,9 +40,10 @@ import * as upload from '@midwayjs/upload';
     cool,
     // rpc 微服务 远程调用
     // rpc,
+    // 运行信息页 /_info，会展示环境变量和配置，只在本地开发启用
     {
       component: info,
-      enabledEnvironment: ['local', 'prod'],
+      enabledEnvironment: ['local'],
     },
   ],
   importConfigs: [

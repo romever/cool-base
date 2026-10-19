@@ -1,4 +1,5 @@
 import { ModuleConfig } from '@cool-midway/core';
+import { isDevEnv, requireEnv } from '../../comm/env';
 
 /**
  * 模块配置
@@ -19,8 +20,11 @@ export default options => {
     hooks: {
       // 文件上传
       upload: {
-        // 地址前缀
-        domain: `http://127.0.0.1:${options?.app?.getConfig('koa.port')}`,
+        // 上传文件访问地址的前缀，返回给前端的地址为 `${domain}/upload/...`
+        // 开发环境直连本机后端，其它环境必须通过环境变量 UPLOAD_DOMAIN 提供后端的对外地址
+        domain: isDevEnv()
+          ? `http://127.0.0.1:${options?.app?.getConfig('koa.port')}`
+          : requireEnv('UPLOAD_DOMAIN'),
       },
     },
   } as ModuleConfig;
