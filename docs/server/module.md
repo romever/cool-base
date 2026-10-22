@@ -15,6 +15,7 @@ modules/shop/
 ├── middleware/       （可选）模块中间件
 ├── event/            （可选）事件监听，见 event.md
 ├── schedule/ 或 job/ （可选）定时任务，见 task.md
+├── worker/           （可选）worker 进程的执行逻辑，见 worker.md
 ├── config.ts         必须，模块配置
 ├── db.json           （可选）模块初始化数据
 └── menu.json         （可选）模块初始化菜单

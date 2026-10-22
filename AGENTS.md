@@ -1,6 +1,17 @@
 # AGENTS.md
 
-本仓库是基于 [cool-admin](https://cool-js.com) 8.x 的通用后台框架，用来二次开发各种应用的**管理后台**。它只包含后台本身，不包含面向 C 端用户（App、小程序、网站）的服务；C 端服务独立开发，后台通过共享数据库或调用其内部接口来管理它们（见 `docs/server/integration.md`）。
+本仓库是基于 [cool-admin](https://cool-js.com) 8.x 的通用后台框架，用来二次开发只给内部管理员使用的后台系统。它不包含面向 C 端用户（App、小程序、网站）的服务。
+
+## 两种形态
+
+| 形态 | 是什么 | 业务数据 | 耗时的业务处理 | 额外要读 |
+| --- | --- | --- | --- | --- |
+| 附属后台 | 管理一个独立开发的 C 端服务，例如商城后台 | 归 C 端，后台通过共享数据库或调用 C 端内部接口来管理 | 归 C 端 | `docs/server/integration.md` |
+| 独立业务系统 | 后台本身就是完整的业务系统，没有 C 端，例如检测平台、内部审批系统 | 归后台，存在 `default` 数据源 | 后台自己执行，用任务表 + worker 进程 | `docs/server/worker.md`、`docs/server/file.md` |
+
+基于本框架开新项目时，把下面这行改成实际形态，之后按对应形态的规则开发：
+
+> 本项目形态：未指定
 
 前后端放在同一个 pnpm workspace 里：
 
@@ -57,10 +68,12 @@ pnpm build            # 构建前后端
 | 定义实体、字段类型、可选项、数据库配置、事务 | `docs/server/entity.md` |
 | 写业务逻辑、重写 CRUD、原生 SQL、抛异常 | `docs/server/service.md` |
 | 登录鉴权、接口权限 | `docs/server/authority.md` |
-| 对接 C 端服务：边界规则、独立数据源、调用内部管理接口 | `docs/server/integration.md` |
+| 附属后台对接 C 端服务：边界规则、独立数据源、调用内部管理接口 | `docs/server/integration.md` |
+| 耗时的业务处理：任务表、worker 进程、执行外部命令 | `docs/server/worker.md` |
+| 公开素材与业务文件的存放、下载、清理 | `docs/server/file.md` |
 | 缓存、Redis | `docs/server/cache.md` |
 | 事件 | `docs/server/event.md` |
-| 定时任务（后台自身的维护任务） | `docs/server/task.md` |
+| 定时任务 | `docs/server/task.md` |
 | 多租户 | `docs/server/tenant.md` |
 | WebSocket | `docs/server/socket.md` |
 | 前端模块/插件结构、config.ts、路由、store | `docs/admin/module.md` |

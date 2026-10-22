@@ -50,9 +50,13 @@ export class ShopGoodsEntity extends BaseEntity {
   @Column({ comment: '标签', type: 'json', nullable: true, transformer: transformerJson })
   labels: string[];
 
-  // 只需要日期用 date，需要时分秒用 datetime
+  // 只需要日期用 date
   @Column({ comment: '上架日期', type: 'date', nullable: true })
   onlineDate: Date;
+
+  // 需要时分秒：PostgreSQL 用 timestamp，MySQL、SQLite 用 datetime
+  @Column({ comment: '下架时间', type: 'timestamp', nullable: true })
+  offlineTime: Date;
 
   @Column({ comment: '详情', type: 'text', nullable: true })
   content: string;

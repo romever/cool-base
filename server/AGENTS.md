@@ -12,9 +12,10 @@ server/
 │   │   ├── config.default.ts 所有环境生效
 │   │   ├── config.local.ts   本地开发（pnpm dev）
 │   │   ├── config.prod.ts    生产（pnpm start）
-│   │   └── datasource.ts     迁移命令（pnpm migration:*）使用的数据源
+│   │   └── datasource.ts     迁移命令（pnpm migration:*）和 worker 进程使用的数据源
 │   ├── configuration.ts      Midway 组件注册
 │   ├── migration/            数据库迁移文件，由 migration:generate 生成
+│   ├── workers/              （可选）worker 进程入口，见 docs/server/worker.md
 │   └── modules/<模块>/       业务模块，结构见 docs/server/module.md
 ├── public/                   静态资源、上传文件
 ├── .vscode/*.code-snippets   代码片段（controller、entity、service 等关键字）
@@ -62,10 +63,12 @@ server/
 | Entity：字段写法、可选项、虚拟列、数据库配置、事务 | `../docs/server/entity.md` |
 | Service：重写 CRUD、TypeORM 查询、原生 SQL、异常 | `../docs/server/service.md` |
 | 鉴权与权限 | `../docs/server/authority.md` |
-| 对接 C 端服务：边界规则、独立数据源、调用内部管理接口 | `../docs/server/integration.md` |
+| 附属后台对接 C 端服务：边界规则、独立数据源、调用内部管理接口 | `../docs/server/integration.md` |
+| 耗时的业务处理：任务表、worker 进程、执行外部命令 | `../docs/server/worker.md` |
+| 公开素材与业务文件的存放、下载、清理 | `../docs/server/file.md` |
 | 缓存 | `../docs/server/cache.md` |
 | 事件 | `../docs/server/event.md` |
-| 定时任务（后台自身的维护任务） | `../docs/server/task.md` |
+| 定时任务 | `../docs/server/task.md` |
 | 多租户 | `../docs/server/tenant.md` |
 | WebSocket | `../docs/server/socket.md` |
 

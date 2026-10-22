@@ -2,7 +2,10 @@
 
 基于 [cool-admin](https://cool-js.com) 8.x（Midway 后端 + Vue3 管理端）整理的通用管理后台框架。新项目直接复制本仓库，在上面开发后台业务模块即可。
 
-本框架只包含管理后台，不包含面向 C 端用户的服务。C 端服务（小程序、App 的后端）独立开发、可以用任何语言，后台通过共享数据库或调用其内部接口来管理，见 [docs/server/integration.md](docs/server/integration.md)。
+本框架只包含给内部管理员使用的后台，不包含面向 C 端用户的服务。支持两种形态，详见 [AGENTS.md](AGENTS.md)「两种形态」：
+
+- **附属后台**：管理一个独立开发的 C 端服务（小程序、App 的后端），通过共享数据库或调用其内部接口来管理，见 [docs/server/integration.md](docs/server/integration.md)。
+- **独立业务系统**：后台本身就是业务系统，耗时的业务处理由独立的 worker 进程执行，见 [docs/server/worker.md](docs/server/worker.md)。
 
 ## 目录
 
@@ -42,6 +45,7 @@ pnpm dev
 
 | 位置 | 内容 |
 | --- | --- |
+| `AGENTS.md` 的「本项目形态」 | 附属后台或独立业务系统 |
 | `server/src/config/config.local.ts` / `config.prod.ts` | 数据库连接 |
 | `admin/.env` 的 `VITE_NAME` | 管理端名称 |
 | `admin/src/config/proxy.ts` | 后端地址代理 |
