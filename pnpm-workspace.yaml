@@ -15,3 +15,11 @@ allowBuilds:
   esbuild: true
   msgpackr-extract: false
   vue-demi: true
+
+# 依赖补丁（pnpm patch 生成，补丁文件在 patches/）
+# @cool-vue/vite-plugin：去掉生成 eps 时对 /admin/dict/info/types 的请求，本框架后端没有 dict 模块
+patchedDependencies:
+  '@cool-vue/vite-plugin@8.2.20': patches/@cool-vue__vite-plugin@8.2.20.patch
+
+# 每个子项目各用一份 lockfile，补丁只在用到它的子项目中生效，其他子项目安装时不报「补丁未使用」
+allowUnusedPatches: true

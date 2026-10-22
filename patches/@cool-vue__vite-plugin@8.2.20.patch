@@ -1,0 +1,53 @@
+diff --git a/dist/index.js b/dist/index.js
+index 9d643789cff819c20ed4f643ea20012a3d3a19e6..084175eb1719db298ec5ffe62e22aa50bc45da49 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1153,8 +1153,6 @@
+             return `
+ 			type json = any;
+ 
+-			${await createDict()}
+-
+ 			interface PagePagination {
+ 				size: number;
+ 				page: number;
+@@ -1384,39 +1382,6 @@
+             types,
+         };
+     }
+-    /**
+-     * 获取字典类型定义
+-     * @returns {Promise<string>} 字典类型 type 定义
+-     */
+-    async function createDict() {
+-        let p = "";
+-        switch (config.type) {
+-            case "app":
+-            case "uniapp-x":
+-                p = "/app";
+-                break;
+-            case "admin":
+-                p = "/admin";
+-                break;
+-        }
+-        const url = config.reqUrl + p + "/dict/info/types";
+-        const text = await axios
+-            .get(url)
+-            .then((res) => {
+-            const { code, data } = res.data;
+-            if (code === 1000) {
+-                let v = "string";
+-                if (!lodash.isEmpty(data)) {
+-                    v = data.map((e) => `"${e.key}"`).join(" | ");
+-                }
+-                return `type DictKey = ${v}`;
+-            }
+-        })
+-            .catch(() => {
+-            error(`[cool-eps] Error：${url}`);
+-        });
+-        return text || "";
+-    }
+     /**
+      * 主入口：创建 eps 相关文件和 service
+      */

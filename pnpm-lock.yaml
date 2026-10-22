@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@cool-vue/vite-plugin@8.2.20': 7c651996174c3a91e0424a45ca7a45b0f9048bcbaa1647be8efb58276838f6b6
+
 importers:
 
   .: {}

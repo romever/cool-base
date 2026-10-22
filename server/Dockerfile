@@ -19,6 +19,8 @@ RUN npm install -g pnpm@11.5.1
 
 WORKDIR /app
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+# pnpm-workspace.yaml 中 patchedDependencies 引用的补丁文件
+COPY patches ./patches
 COPY server/package.json server/pnpm-lock.yaml ./server/
 
 # 构建阶段：安装全部依赖并编译

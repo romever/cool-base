@@ -7,6 +7,8 @@ RUN npm config set registry https://registry.npmmirror.com
 RUN npm install -g pnpm@11.5.1
 WORKDIR /app
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+# pnpm-workspace.yaml 中 patchedDependencies 引用的补丁文件
+COPY patches ./patches
 COPY admin/package.json admin/pnpm-lock.yaml ./admin/
 RUN pnpm install --frozen-lockfile --filter admin
 COPY admin ./admin

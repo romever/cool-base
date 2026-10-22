@@ -1,8 +1,8 @@
-import { proxy } from './proxy';
-
 export default {
-	// 根地址
-	host: proxy['/prod/'].target,
+	// 根地址：生产环境管理端和后端同域部署，由 nginx 把 /api 转发到后端
+	get host() {
+		return location.origin;
+	},
 
 	// 请求地址
 	get baseUrl() {
